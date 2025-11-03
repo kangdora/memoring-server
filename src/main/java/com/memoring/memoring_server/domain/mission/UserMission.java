@@ -12,6 +12,8 @@ import lombok.*;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class UserMission extends AuditableEntity {
 
+    public enum MissionStatus { PENDING, IN_PROGRESS, COMPLETED }
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -24,8 +26,8 @@ public class UserMission extends AuditableEntity {
     @Column(nullable=false)
     private Integer weekOfYear;
 
-    @ManyToOne(fetch=FetchType.LAZY, optional=false)
-    private WeeklyMissionOption selectedOption;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private MissionTemplate selectedTemplate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable=false, length=20)
