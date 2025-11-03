@@ -12,8 +12,6 @@ import lombok.*;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class UserMission extends AuditableEntity {
 
-    public enum MissionStatus { PENDING, IN_PROGRESS, COMPLETED }
-
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
