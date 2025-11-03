@@ -6,9 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "media_files")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
+@Table(name="media_files")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class MediaFile extends AuditableEntity {
 
@@ -28,20 +27,21 @@ public class MediaFile extends AuditableEntity {
     @Column(nullable = false, length = 1024)
     private String storageKey;
 
+    /// 예시로 application/json 같은 타입 판단할때 씀.
     @Column(length = 100)
     private String mimeType;
 
     @Column(nullable = false)
     private Long sizeBytes;
 
-    /** hex 64 */
+    /** 동일한 영상인지 해시값으로 판단 */
     @Column(nullable = false, length = 64)
     private String sha256;
 
-    // image
+    // 사진
     private Integer width;
     private Integer height;
 
-    // audio
+    // 녹음
     private Integer durationMs;
 }

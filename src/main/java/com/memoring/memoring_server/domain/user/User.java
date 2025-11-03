@@ -5,9 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "users")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
+@Table(name = "users",
+        uniqueConstraints = @UniqueConstraint(name="uk_users_login_id", columnNames = "loginId"))
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class User extends AuditableEntity {
 
