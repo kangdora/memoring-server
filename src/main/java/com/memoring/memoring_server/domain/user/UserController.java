@@ -22,11 +22,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
+    public ResponseEntity<UserInfoResponseDto> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         UserInfoResponseDto response = userService.getUserInfo(userDetails.getUsername());
         return ResponseEntity.ok(response);
     }
