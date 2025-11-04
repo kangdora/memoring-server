@@ -1,8 +1,6 @@
 package com.memoring.memoring_server.domain.user;
 
-import com.memoring.memoring_server.domain.user.dto.LogInRequestDto;
-import com.memoring.memoring_server.domain.user.dto.SignUpRequestDto;
-import com.memoring.memoring_server.domain.user.dto.UserInfoResponseDto;
+import com.memoring.memoring_server.domain.user.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,17 +26,19 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LogInRequestDto dto) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<UserLoginResponseDto> login(@RequestBody LogInRequestDto dto) {
+        UserLoginResponseDto response = userService.login(dto);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignUpRequestDto dto) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<UserSignUpResponseDto> signup(@RequestBody SignUpRequestDto dto) {
+        UserSignUpResponseDto response = userService.signup(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
