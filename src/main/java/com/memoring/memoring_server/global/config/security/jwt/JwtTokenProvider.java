@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,16 +30,20 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(Authentication authentication) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + jwtProperties.getExpiration());
+    public String generateAccessToken(Authentication authentication) {
+        return generateAccessToken(authentication.getName());
+    }
 
-        return Jwts.builder()
-                .setSubject(authentication.getName())
-                .setIssuedAt(now)
-                .setExpiration(expiry)
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
+    public String generateAccessToken(String username) {
+        return generateToken(username, jwtProperties.getAccessTokenExpiration());
+    }
+
+    public String generateRefreshToken(Authentication authentication) {
+        return generateRefreshToken(authentication.getName());
+    }
+
+    public String generateRefreshToken(String username) {
+        return generateToken(username, jwtProperties.getRefreshTokenExpiration());
     }
 
     public Authentication getAuthentication(String token) {
@@ -54,6 +59,26 @@ public class JwtTokenProvider {
         } catch (RuntimeException ex) {
             return false;
         }
+    }
+
+    public long getAccessTokenValidityInMillis() {
+        return jwtProperties.getAccessTokenExpiration();
+    }
+
+    public long getRefreshTokenValidityInMillis() {
+        return jwtProperties.getRefreshTokenExpiration();
+    }
+
+    private String generateToken(String username, long expirationInMillis) {
+        Instant now = Instant.now();
+        Instant expiry = now.plusMillis(expirationInMillis);
+
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(expiry))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private String getUsername(String token) {

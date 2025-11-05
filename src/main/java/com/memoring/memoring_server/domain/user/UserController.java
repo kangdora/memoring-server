@@ -32,8 +32,15 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout() {
+    public ResponseEntity<Void> logout(@AuthenticationPrincipal UserDetails userDetails) {
+        userService.logout(userDetails.getUsername());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<UserLoginResponseDto> refresh(@RequestBody TokenRefreshRequestDto dto) {
+        UserLoginResponseDto response = userService.refresh(dto);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/signup")
