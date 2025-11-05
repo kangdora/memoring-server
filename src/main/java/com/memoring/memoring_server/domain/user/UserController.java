@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
 
     @GetMapping("/me")
     public ResponseEntity<UserInfoResponseDto> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
@@ -27,25 +28,25 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponseDto> login(@RequestBody LogInRequestDto dto) {
-        UserLoginResponseDto response = userService.login(dto);
+        UserLoginResponseDto response = authService.login(dto);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@AuthenticationPrincipal UserDetails userDetails) {
-        userService.logout(userDetails.getUsername());
+        authService.logout(userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<UserLoginResponseDto> refresh(@RequestBody TokenRefreshRequestDto dto) {
-        UserLoginResponseDto response = userService.refresh(dto);
+        UserLoginResponseDto response = authService.refresh(dto);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/signup")
     public ResponseEntity<UserSignUpResponseDto> signup(@RequestBody SignUpRequestDto dto) {
-        UserSignUpResponseDto response = userService.signup(dto);
+        UserSignUpResponseDto response = authService.signup(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
