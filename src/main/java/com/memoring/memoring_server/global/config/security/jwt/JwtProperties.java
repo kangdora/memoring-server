@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+
 @Component
 @Getter
 @Setter
@@ -12,5 +14,6 @@ import org.springframework.stereotype.Component;
 public class JwtProperties {
 
     private String secret;
-    private long expiration;
+    private long accessTokenExpiration = Duration.ofMinutes(10).toMillis();
+    private long refreshTokenExpiration = Duration.ofDays(7).toMillis();
 }

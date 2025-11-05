@@ -6,16 +6,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(PasswordMismatchException.class)
-    public ResponseEntity<ErrorResponse> handlePasswordMismatchException(PasswordMismatchException ex) {
-        return ResponseEntity.status(ErrorCode.PASSWORD_MISMATCH.getStatus())
-                .body(ErrorResponse.of(ErrorCode.PASSWORD_MISMATCH));
-    }
-
-    @ExceptionHandler(DuplicateLoginIdException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateLoginIdException(DuplicateLoginIdException e) {
-        return ResponseEntity.status(ErrorCode.DUPLICATE_LOGIN_ID.getStatus())
-                .body(ErrorResponse.of(ErrorCode.DUPLICATE_LOGIN_ID));
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        return ResponseEntity.status(errorCode.getStatus())
+                .body(ErrorResponse.of(errorCode));
     }
 
     @ExceptionHandler(Exception.class)
