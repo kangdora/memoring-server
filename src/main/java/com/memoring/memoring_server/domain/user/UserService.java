@@ -15,15 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-    private static final String TOKEN_TYPE = "Bearer";
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
-        User user = getUserByLoginId(loginId);
-
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = getUserByUsername(username);
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
@@ -31,8 +28,8 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    public UserInfoResponseDto getUserInfo(String loginId) {
-        User user = getUserByLoginId(loginId);
+    public UserInfoResponseDto getUserInfo(String username) {
+        User user = getUserByUsername(username);
 
         return UserInfoResponseDto.from(user);
     }
@@ -41,17 +38,17 @@ public class UserService implements UserDetailsService {
     public User registerUser(SignUpRequestDto requestDto) {
         validateSignupRequest(requestDto);
 
-        User user = User.builder()
-                .username(requestDto.username())
-                .loginId(requestDto.id())
-                .password(passwordEncoder.encode(requestDto.password()))
-                .build();
+        User user = User.create(
+                requestDto.nickname(),
+                requestDto.username(),
+                passwordEncoder.encode(requestDto.password())
+        );
 
         return userRepository.save(user);
     }
 
-    public User getUserByLoginId(String loginId) {
-        return userRepository.findByUsername(loginId)
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
     }
 
@@ -60,7 +57,7 @@ public class UserService implements UserDetailsService {
             throw new PasswordMismatchException();
         }
 
-        if (userRepository.existsByUsername(requestDto.id())) {
+        if (userRepository.existsByUsername(requestDto.username())) {
             throw new DuplicateLoginIdException();
         }
     }

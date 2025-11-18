@@ -28,7 +28,7 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(requestDto.username(), requestDto.password())
         );
 
-        User user = userService.getUserByLoginId(authentication.getName());
+        User user = userService.getUserByUsername(authentication.getName());
 
         String accessToken = jwtTokenProvider.generateAccessToken(authentication);
         String refreshToken = jwtTokenProvider.generateRefreshToken(authentication);
@@ -76,7 +76,7 @@ public class AuthService {
 
     @Transactional
     public void logout(String loginId) {
-        User user = userService.getUserByLoginId(loginId);
+        User user = userService.getUserByUsername(loginId);
         refreshTokenService.deleteByUser(user);
     }
 
