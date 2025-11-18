@@ -22,11 +22,7 @@ public class RefreshTokenService {
                     return existing;
                 })
                 .orElseGet(() -> refreshTokenRepository.save(
-                        RefreshToken.builder()
-                                .user(user)
-                                .token(token)
-                                .expiryDate(expiryDate)
-                                .build()
+                        RefreshToken.create(user, token, expiryDate)
                 ));
     }
 

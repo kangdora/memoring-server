@@ -20,7 +20,7 @@ public class Message extends AuditableEntity {
     @JoinColumn(name = "memory_id", nullable = false)
     private Memory memory;
 
-    @Column(nullable = false, length = 255)
+    @Column(columnDefinition = "text", nullable = false)
     private String content;
 
     @Enumerated(EnumType.STRING)
