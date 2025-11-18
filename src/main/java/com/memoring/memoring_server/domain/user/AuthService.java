@@ -25,7 +25,7 @@ public class AuthService {
 
     public UserLoginResponseDto login(LogInRequestDto requestDto) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(requestDto.id(), requestDto.password())
+                new UsernamePasswordAuthenticationToken(requestDto.username(), requestDto.password())
         );
 
         User user = userService.getUserByLoginId(authentication.getName());
@@ -42,7 +42,7 @@ public class AuthService {
         User user = userService.registerUser(requestDto);
 
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getLoginId(), requestDto.password())
+                new UsernamePasswordAuthenticationToken(user.getUsername(), requestDto.password())
         );
 
         String accessToken = jwtTokenProvider.generateAccessToken(authentication);
@@ -54,7 +54,6 @@ public class AuthService {
                 accessToken,
                 refreshToken,
                 TOKEN_TYPE,
-                user.getRole(),
                 user.getUsername(),
                 jwtTokenProvider.getAccessTokenValidityInMillis(),
                 jwtTokenProvider.getRefreshTokenValidityInMillis()
@@ -66,8 +65,10 @@ public class AuthService {
         RefreshToken refreshToken = refreshTokenService.getValidRefreshToken(requestDto.refreshToken());
         User user = refreshToken.getUser();
 
-        String newAccessToken = jwtTokenProvider.generateAccessToken(user.getLoginId());
-        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getLoginId());
+        String username = user.getUsername();
+
+        String newAccessToken = jwtTokenProvider.generateAccessToken(username);
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(username);
         saveRefreshToken(user, newRefreshToken);
 
         return buildTokenResponse(newAccessToken, newRefreshToken);

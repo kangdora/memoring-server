@@ -6,5 +6,4 @@ public record UserLoginResponseDto(
         String tokenType,
         long accessTokenExpiresIn,
         long refreshTokenExpiresIn
-) {
-}
+) {}

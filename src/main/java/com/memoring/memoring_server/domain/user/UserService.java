@@ -24,10 +24,10 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
         User user = getUserByLoginId(loginId);
 
+
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getLoginId())
+                .username(user.getUsername())
                 .password(user.getPassword())
-                .roles(user.getRole().name())
                 .build();
     }
 
@@ -45,14 +45,13 @@ public class UserService implements UserDetailsService {
                 .username(requestDto.username())
                 .loginId(requestDto.id())
                 .password(passwordEncoder.encode(requestDto.password()))
-                .role(Role.MAJOR)
                 .build();
 
         return userRepository.save(user);
     }
 
     public User getUserByLoginId(String loginId) {
-        return userRepository.findByLoginId(loginId)
+        return userRepository.findByUsername(loginId)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
     }
 
@@ -61,7 +60,7 @@ public class UserService implements UserDetailsService {
             throw new PasswordMismatchException();
         }
 
-        if (userRepository.existsByLoginId(requestDto.id())) {
+        if (userRepository.existsByUsername(requestDto.id())) {
             throw new DuplicateLoginIdException();
         }
     }
