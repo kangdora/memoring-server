@@ -21,7 +21,7 @@ public class Image extends AuditableEntity {
     private Long sizeBytes;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "message_id", nullable = false)
+    @JoinColumn(name = "message_id", nullable = false, unique = true)
     private Message message;
 
     public static Image create(Message message, String s3key, Long sizeBytes) {
