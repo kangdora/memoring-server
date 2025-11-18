@@ -1,14 +1,16 @@
-package com.memoring.memoring_server.domain.message;
+package com.memoring.memoring_server.domain.diary;
 
 import com.memoring.memoring_server.domain.common.AuditableEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "images")
+@Table(name = "diary_images")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Image extends AuditableEntity {
+public class DiaryImage extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,14 +23,14 @@ public class Image extends AuditableEntity {
     private Long sizeBytes;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "message_id", nullable = false, unique = true)
-    private Message message;
+    @JoinColumn(name = "diary_id", nullable = false, unique = true)
+    private Diary diary;
 
-    public static Image create(Message message, String s3key, Long sizeBytes) {
-        Image image = new Image();
-        image.message = message;
+    public static DiaryImage create(String s3key, Long sizeBytes, Diary diary) {
+        DiaryImage image = new DiaryImage();
         image.s3key = s3key;
         image.sizeBytes = sizeBytes;
+        image.diary = diary;
         return image;
     }
 }

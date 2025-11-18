@@ -29,6 +29,9 @@ public class QuizResult {
     @Column(columnDefinition = "json", nullable = false)
     private String answer;
 
+    @Column(nullable = false)
+    private Integer answerCount;
+
     public static QuizResult create(User user, QuizSet quizSet, LocalDate takenAt, String answer) {
         QuizResult qr = new QuizResult();
         qr.user = user;

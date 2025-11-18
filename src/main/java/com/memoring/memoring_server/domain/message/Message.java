@@ -23,25 +23,15 @@ public class Message extends AuditableEntity {
     @Column(columnDefinition = "text", nullable = false)
     private String content;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20)
-    private Emotion emotion;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private MessageType type;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public static Message create(Memory memory, User user, String content, Emotion emotion, MessageType type) {
+    public static Message create(Memory memory, User user, String content) {
         Message message = new Message();
         message.memory = memory;
         message.user = user;
         message.content = content;
-        message.emotion = emotion;
-        message.type = type;
         return message;
     }
 }

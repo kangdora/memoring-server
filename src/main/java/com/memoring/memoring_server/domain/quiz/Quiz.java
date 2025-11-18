@@ -20,6 +20,9 @@ public class Quiz{
     @JoinColumn(name = "quizset_id", nullable = false)
     private QuizSet quizSet;
 
+    @Column(columnDefinition = "text", nullable = false)
+    private String prompt;
+
     public static Quiz create(QuizSet quizSet, String content) {
         Quiz quiz = new Quiz();
         quiz.quizSet = quizSet;
