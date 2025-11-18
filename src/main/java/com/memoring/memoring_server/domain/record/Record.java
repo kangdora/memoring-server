@@ -20,7 +20,7 @@ public class Record {
     private Mission mission;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "mission_id", nullable = false, unique = true)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
     @Column(columnDefinition = "text", nullable = false)
