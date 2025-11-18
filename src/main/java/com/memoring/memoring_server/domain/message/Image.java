@@ -20,7 +20,7 @@ public class Image extends AuditableEntity {
     @Column(nullable = false)
     private Long sizeBytes;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "message_id", nullable = false)
     private Message message;
 

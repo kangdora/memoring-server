@@ -19,8 +19,8 @@ public class Record {
     @JoinColumn(name = "mission_id", nullable = false)
     private Mission mission;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "mission_id", nullable = false, unique = true)
     private User user;
 
     @Column(columnDefinition = "text", nullable = false)
