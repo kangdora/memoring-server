@@ -1,4 +1,12 @@
 package com.memoring.memoring_server.domain.diary.dto;
 
-public record DiaryDetailResponseDto() {
+import com.memoring.memoring_server.domain.message.Emotion;
+
+public record DiaryDetailResponseDto(
+        Long diaryId,
+        Long memoryId,
+        Long missionId,
+        String content,
+        Emotion mood
+) {
 }
