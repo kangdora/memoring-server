@@ -9,8 +9,6 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "diaries")
@@ -40,6 +38,9 @@ public class Diary extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Emotion mood;
+
+    @Column(name = "image_s3_key", length = 512)
+    private String imageS3Key;
 
     public static Diary create(
             User user,

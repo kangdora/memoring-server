@@ -2,6 +2,7 @@ package com.memoring.memoring_server.global.storage;
 
 import com.memoring.memoring_server.global.storage.dto.FileDeleteRequestDto;
 import com.memoring.memoring_server.global.storage.dto.FileUploadResponseDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,13 +17,10 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/v1/storage")
+@RequiredArgsConstructor
 public class StorageController implements StorageApi {
 
     private final StorageService storageService;
-
-    public StorageController(StorageService storageService) {
-        this.storageService = storageService;
-    }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FileUploadResponseDto> uploadFile(@RequestPart("file") MultipartFile file) throws IOException {

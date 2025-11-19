@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -25,6 +26,7 @@ public class DiaryService {
     private final DiaryRepository diaryRepository;
     private final MemoryRepository memoryRepository;
     private final MissionRepository missionRepository;
+    private final DiaryImageRepository diaryImageRepository;
 
     @Transactional
     public DiaryCreateResponseDto createDiary(DiaryCreateRequestDto dto) {
@@ -46,9 +48,13 @@ public class DiaryService {
     public Optional<DiaryDetailResponseDto> getDiary(Long diaryId) {
         return diaryRepository.findById(diaryId)
                 .map(diary -> new DiaryDetailResponseDto(
-                        diary.getId(),
-                        diary.getMemory().getId(),
-                        diary.getMission().getId(),
+                        Optional.ofNullable(diary.getCreatedAt())
+                                .map(LocalDateTime::toLocalDate)
+                                .orElse(null),
+                        diaryImageRepository.findByDiaryId(diaryId)
+                                .map(DiaryImage::getS3key)
+                                .orElse(null),
+                        diary.getMission().getContent(),
                         diary.getContent(),
                         diary.getMood()
                 ));
