@@ -14,6 +14,8 @@ public enum ErrorCode {
 
     MEMORY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 기억을 찾을 수 없습니다."),
     MISSION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 미션을 찾을 수 없습니다."),
+    DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 일기를 찾을 수 없습니다."),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다."),
     INVALID_MISSION_SELECTION(HttpStatus.BAD_REQUEST, "선택한 미션을 찾을 수 없습니다."),
     DIARY_OWNERSHIP_MISMATCH(HttpStatus.BAD_REQUEST, "미션과 메모리의 소유자가 일치하지 않습니다."),
 
