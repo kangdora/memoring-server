@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface MissionRepository extends JpaRepository<Mission, Long> {
-    Optional<Mission> findByUser(User user);
+public interface UserMissionRepository extends JpaRepository<UserMission, Long> {
+    Optional<UserMission> findByUser(User user);
 }

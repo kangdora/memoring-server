@@ -6,7 +6,8 @@ import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponseDto;
 import com.memoring.memoring_server.domain.memory.Memory;
 import com.memoring.memoring_server.domain.memory.MemoryRepository;
 import com.memoring.memoring_server.domain.mission.Mission;
-import com.memoring.memoring_server.domain.mission.MissionRepository;
+import com.memoring.memoring_server.domain.mission.UserMission;
+import com.memoring.memoring_server.domain.mission.UserMissionRepository;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.global.exception.DiaryOwnershipMismatchException;
 import com.memoring.memoring_server.global.exception.MemoryNotFoundException;
@@ -27,7 +28,7 @@ public class DiaryService {
 
     private final DiaryRepository diaryRepository;
     private final MemoryRepository memoryRepository;
-    private final MissionRepository missionRepository;
+    private final UserMissionRepository userMissionRepository;
     private final DiaryImageRepository diaryImageRepository;
     private final StorageService storageService;
 
@@ -35,14 +36,16 @@ public class DiaryService {
     public DiaryCreateResponseDto createDiary(DiaryCreateRequestDto dto) {
         Memory memory = memoryRepository.findById(dto.memoryId())
                 .orElseThrow(MemoryNotFoundException::new);
-        Mission mission = missionRepository.findById(dto.missionId())
+        UserMission userMission = userMissionRepository.findById(dto.missionId())
                 .orElseThrow(MissionNotFoundException::new);
 
-        User user = mission.getUser();
+        User user = userMission.getUser();
         if (memory.getUser() != null && !memory.getUser().getId().equals(user.getId())) {
             throw new DiaryOwnershipMismatchException();
         }
 
+        Mission mission = Optional.ofNullable(userMission.getMission())
+                .orElseThrow(MissionNotFoundException::new);
         Diary diary = Diary.create(user, memory, mission, dto.content(), dto.mood());
         Diary savedDiary = diaryRepository.save(diary);
         return new DiaryCreateResponseDto(savedDiary.getId());

@@ -8,7 +8,7 @@ public record DiaryCreateRequestDto(
         @Schema(description = "연결된 메모리 ID")
         Long memoryId,
 
-        @Schema(description = "선택된 미션 ID")
+        @Schema(description = "선택된 사용자 미션 ID")
         Long missionId,
 
         @Schema(description = "작성한 일기 내용")
