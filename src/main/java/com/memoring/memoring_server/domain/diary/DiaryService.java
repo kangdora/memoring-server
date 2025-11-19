@@ -54,7 +54,7 @@ public class DiaryService {
     @Transactional
     public void uploadDiaryImage(Long diaryId, MultipartFile file) {
         Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new IllegalArgumentException("Diary not found: " + diaryId));
+                .orElseThrow(DiaryNotFoundException::new);
 
         String imageS3Key = storageService.uploadDiaryImage(diaryId, file);
 
