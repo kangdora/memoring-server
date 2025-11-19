@@ -1,6 +1,6 @@
 package com.memoring.memoring_server.domain.diary.dto;
 
-import com.memoring.memoring_server.domain.message.Emotion;
+import com.memoring.memoring_server.domain.diary.Emotion;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;

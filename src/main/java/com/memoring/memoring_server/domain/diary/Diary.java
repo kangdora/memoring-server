@@ -1,7 +1,6 @@
 package com.memoring.memoring_server.domain.diary;
 
 import com.memoring.memoring_server.domain.common.AuditableEntity;
-import com.memoring.memoring_server.domain.message.Emotion;
 import com.memoring.memoring_server.domain.memory.Memory;
 import com.memoring.memoring_server.domain.mission.Mission;
 import com.memoring.memoring_server.domain.user.User;
