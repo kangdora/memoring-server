@@ -32,12 +32,13 @@ public class QuizResult {
     @Column(nullable = false)
     private Integer answerCount;
 
-    public static QuizResult create(User user, QuizSet quizSet, LocalDate takenAt, String answer) {
+    public static QuizResult create(User user, QuizSet quizSet, LocalDate takenAt, String answer, Integer answerCount) {
         QuizResult qr = new QuizResult();
         qr.user = user;
         qr.quizSet = quizSet;
         qr.takenAt = takenAt;
         qr.answer = answer;
+        qr.answerCount = answerCount;
         return qr;
     }
 }

@@ -43,7 +43,7 @@ public class User extends AuditableEntity {
         return user;
     }
 
-    public void addCoin(int count) {
+    public void addCoin(Long count) {
         this.coin += count;
     }
 
