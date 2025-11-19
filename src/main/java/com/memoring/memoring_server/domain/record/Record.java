@@ -1,7 +1,6 @@
 package com.memoring.memoring_server.domain.record;
 
-import com.memoring.memoring_server.domain.mission.Mission;
-import com.memoring.memoring_server.domain.user.User;
+import com.memoring.memoring_server.domain.mission.UserMission;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,13 +14,9 @@ public class Record {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mission_id", nullable = false)
-    private Mission mission;
-
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+    @JoinColumn(name = "user_mission_id", nullable = false, unique = true)
+    private UserMission userMission;
 
     @Column(columnDefinition = "text", nullable = false)
     private String s3key;
@@ -29,12 +24,16 @@ public class Record {
     @Column(nullable = false)
     private Long sizeBytes;
 
-    public static Record create(Mission mission, User user, String s3key, Long sizeBytes) {
+    public static Record create(UserMission userMission, String s3key, Long sizeBytes) {
         Record record = new Record();
-        record.mission = mission;
-        record.user = user;
+        record.userMission = userMission;
         record.s3key = s3key;
         record.sizeBytes = sizeBytes;
         return record;
+    }
+
+    public void update(String s3key, Long sizeBytes) { // 업데이트 용
+        this.s3key = s3key;
+        this.sizeBytes = sizeBytes;
     }
 }

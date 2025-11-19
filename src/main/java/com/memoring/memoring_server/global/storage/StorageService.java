@@ -26,6 +26,32 @@ public class StorageService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    public String uploadRecord(Long userId, MultipartFile file) {
+        String originalFilename = file.getOriginalFilename();
+        String ext = (originalFilename != null && originalFilename.contains("."))
+                ? originalFilename.substring(originalFilename.lastIndexOf("."))
+                : "";
+
+        String key = "records/" + userId + "/" + UUID.randomUUID() + ext;
+
+        try {
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .contentType(file.getContentType())
+                    .build();
+
+            s3Client.putObject(
+                    putObjectRequest,
+                    RequestBody.fromInputStream(file.getInputStream(), file.getSize())
+            );
+
+            return key;
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to upload record to S3", e);
+        }
+    }
+
     public FileUploadResponseDto uploadFile(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         String ext = (originalFilename != null && originalFilename.contains("."))
