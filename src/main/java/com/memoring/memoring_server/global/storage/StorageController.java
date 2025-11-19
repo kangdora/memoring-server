@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/api/v1/storage")
 @RequiredArgsConstructor
@@ -22,14 +20,16 @@ public class StorageController implements StorageApi {
 
     private final StorageService storageService;
 
+    @Override
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<FileUploadResponseDto> uploadFile(@RequestPart("file") MultipartFile file) throws IOException {
+    public ResponseEntity<FileUploadResponseDto> uploadFile(@RequestPart("file") MultipartFile file) {
         FileUploadResponseDto response = storageService.uploadFile(file);
         return ResponseEntity.ok(response);
     }
 
+    @Override
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteFile(@RequestBody FileDeleteRequestDto request) throws IOException {
+    public ResponseEntity<Void> deleteFile(@RequestBody FileDeleteRequestDto request){
         if (storageService.deleteFile(request)) {
             return ResponseEntity.noContent().build();
         }

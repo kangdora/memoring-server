@@ -11,9 +11,11 @@ import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.global.exception.DiaryOwnershipMismatchException;
 import com.memoring.memoring_server.global.exception.MemoryNotFoundException;
 import com.memoring.memoring_server.global.exception.MissionNotFoundException;
+import com.memoring.memoring_server.global.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -27,6 +29,7 @@ public class DiaryService {
     private final MemoryRepository memoryRepository;
     private final MissionRepository missionRepository;
     private final DiaryImageRepository diaryImageRepository;
+    private final StorageService storageService;
 
     @Transactional
     public DiaryCreateResponseDto createDiary(DiaryCreateRequestDto dto) {
@@ -45,6 +48,20 @@ public class DiaryService {
         return new DiaryCreateResponseDto(savedDiary.getId());
     }
 
+    @Transactional
+    public void uploadDiaryImage(Long diaryId, MultipartFile file) {
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new IllegalArgumentException("Diary not found: " + diaryId));
+
+        String imageS3Key = storageService.uploadDiaryImage(diaryId, file);
+
+        diaryImageRepository.findByDiaryId(diaryId)
+                .ifPresentOrElse(
+                        image -> image.update(imageS3Key, file.getSize()),
+                        () -> diaryImageRepository.save(DiaryImage.create(imageS3Key, file.getSize(), diary))
+                );
+    }
+
     public Optional<DiaryDetailResponseDto> getDiary(Long diaryId) {
         return diaryRepository.findById(diaryId)
                 .map(diary -> new DiaryDetailResponseDto(
@@ -53,6 +70,7 @@ public class DiaryService {
                                 .orElse(null),
                         diaryImageRepository.findByDiaryId(diaryId)
                                 .map(DiaryImage::getS3key)
+                                .map(storageService::generatePresignedUrl)
                                 .orElse(null),
                         diary.getMission().getContent(),
                         diary.getContent(),

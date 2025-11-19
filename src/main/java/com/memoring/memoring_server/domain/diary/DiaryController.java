@@ -32,9 +32,7 @@ public class DiaryController implements DiaryApi {
             @PathVariable Long diaryId,
             @RequestPart("file") MultipartFile file
     ) {
-        String imageS3Key = storageService.uploadDiaryImage(diaryId, file);
-
-        diaryService.updateDiaryImageKey(diaryId, imageS3Key);
+        diaryService.uploadDiaryImage(diaryId, file);
 
         return ResponseEntity.noContent().build();
     }

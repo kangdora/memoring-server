@@ -33,4 +33,9 @@ public class DiaryImage extends AuditableEntity {
         image.diary = diary;
         return image;
     }
+
+    public void update(String s3key, Long sizeBytes) {
+        this.s3key = s3key;
+        this.sizeBytes = sizeBytes;
+    }
 }
