@@ -42,4 +42,12 @@ public class User extends AuditableEntity {
         user.coin = 0L;
         return user;
     }
+
+    public void addCoin(int count) {
+        this.coin += count;
+    }
+
+    public void addQuizProgress() {
+        this.quizProgress++;
+    }
 }
