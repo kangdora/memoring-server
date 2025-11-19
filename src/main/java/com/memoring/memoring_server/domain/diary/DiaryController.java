@@ -3,7 +3,8 @@ package com.memoring.memoring_server.domain.diary;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequestDto;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponseDto;
 import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponseDto;
-import com.memoring.memoring_server.global.external.stt.SttService;
+import com.memoring.memoring_server.global.external.openai.stt.SttService;
+import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponseDto;
 import com.memoring.memoring_server.global.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -17,8 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class DiaryController implements DiaryApi {
 
     private final DiaryService diaryService;
-    private final SttService sttService;
-    private final StorageService storageService;
 
     @Override
     @PostMapping
@@ -52,5 +51,14 @@ public class DiaryController implements DiaryApi {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @Override
+    @PostMapping(value = "/transcribe", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<SttTranscriptionResponseDto> transcribeDiaryAudio(
+            @RequestPart("file") MultipartFile file
+    ) {
+        SttTranscriptionResponseDto response = diaryService.transcribeDiaryAudio(file);
+        return ResponseEntity.ok(response);
     }
 }

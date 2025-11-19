@@ -1,4 +1,4 @@
-package com.memoring.memoring_server.global.external.stt;
+package com.memoring.memoring_server.global.external.openai;
 
 import lombok.Getter;
 import lombok.Setter;

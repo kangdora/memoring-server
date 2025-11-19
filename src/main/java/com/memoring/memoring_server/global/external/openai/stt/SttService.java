@@ -1,6 +1,7 @@
-package com.memoring.memoring_server.global.external.stt;
+package com.memoring.memoring_server.global.external.openai.stt;
 
-import com.memoring.memoring_server.global.external.stt.dto.SttTranscriptionResponseDto;
+import com.memoring.memoring_server.global.external.openai.OpenAiProperties;
+import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponseDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;

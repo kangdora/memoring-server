@@ -3,12 +3,14 @@ package com.memoring.memoring_server.domain.diary;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequestDto;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponseDto;
 import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponseDto;
+import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "일기", description = "일기 작성 및 관리 API")
 public interface DiaryApi {
@@ -34,4 +36,12 @@ public interface DiaryApi {
             @ApiResponse(responseCode = "404", description = "삭제할 일기가 존재하지 않음")
     })
     ResponseEntity<Void> deleteDiary(Long diaryId);
+
+    @Operation(summary = "일기 음성 텍스트 변환", description = "다이어리 작성을 위한 음성 파일을 텍스트로 변환")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "변환 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 파일 요청"),
+            @ApiResponse(responseCode = "500", description = "OpenAI 연동 오류")
+    })
+    ResponseEntity<SttTranscriptionResponseDto> transcribeDiaryAudio(MultipartFile file);
 }

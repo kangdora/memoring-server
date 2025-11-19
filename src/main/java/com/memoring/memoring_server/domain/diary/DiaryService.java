@@ -13,6 +13,8 @@ import com.memoring.memoring_server.global.exception.DiaryOwnershipMismatchExcep
 import com.memoring.memoring_server.global.exception.MemoryNotFoundException;
 import com.memoring.memoring_server.global.exception.DiaryNotFoundException;
 import com.memoring.memoring_server.global.exception.MissionNotFoundException;
+import com.memoring.memoring_server.global.external.openai.stt.SttService;
+import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponseDto;
 import com.memoring.memoring_server.global.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ public class DiaryService {
     private final UserMissionRepository userMissionRepository;
     private final DiaryImageRepository diaryImageRepository;
     private final StorageService storageService;
+    private final SttService sttService;
 
     @Transactional
     public DiaryCreateResponseDto createDiary(DiaryCreateRequestDto dto) {
@@ -89,5 +92,9 @@ public class DiaryService {
         }
         diaryRepository.deleteById(diaryId);
         return true;
+    }
+
+    public SttTranscriptionResponseDto transcribeDiaryAudio(MultipartFile file) {
+        return sttService.transcribe(file);
     }
 }
