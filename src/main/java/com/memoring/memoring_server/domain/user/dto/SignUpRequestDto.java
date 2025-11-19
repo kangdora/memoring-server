@@ -2,6 +2,7 @@ package com.memoring.memoring_server.domain.user.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "회원가입 요청")
 public record SignUpRequestDto(
         @Schema(description = "사용자 닉네임")
         String nickname,

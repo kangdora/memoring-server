@@ -2,6 +2,7 @@ package com.memoring.memoring_server.domain.user.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "회원가입 응답")
 public record UserSignUpResponseDto(
         @Schema(description = "회원가입 결과 메시지")
         String message,

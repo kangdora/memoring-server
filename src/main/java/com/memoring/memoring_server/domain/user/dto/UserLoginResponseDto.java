@@ -2,6 +2,7 @@ package com.memoring.memoring_server.domain.user.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "로그인 응답")
 public record UserLoginResponseDto(
         @Schema(description = "발급된 액세스 토큰")
         String accessToken,
