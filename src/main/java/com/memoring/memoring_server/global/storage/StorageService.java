@@ -22,6 +22,7 @@ public class StorageService {
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
+    private static final int PRESIGNED_URL_EXPIRATION_MINUTES = 10;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -142,7 +143,7 @@ public class StorageService {
                 .build();
 
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(10))
+                .signatureDuration(Duration.ofMinutes(PRESIGNED_URL_EXPIRATION_MINUTES))
                 .getObjectRequest(getObjectRequest)
                 .build();
 

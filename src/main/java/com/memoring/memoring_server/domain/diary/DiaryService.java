@@ -11,6 +11,7 @@ import com.memoring.memoring_server.domain.mission.UserMissionRepository;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.global.exception.DiaryOwnershipMismatchException;
 import com.memoring.memoring_server.global.exception.MemoryNotFoundException;
+import com.memoring.memoring_server.global.exception.DiaryNotFoundException;
 import com.memoring.memoring_server.global.exception.MissionNotFoundException;
 import com.memoring.memoring_server.global.storage.StorageService;
 import lombok.RequiredArgsConstructor;

@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class SttController implements SttApi {
     private final SttService sttService;
 
-
     @PostMapping(value = "/transcribe", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SttTranscriptionResponseDto> transcribe(@RequestPart("file") MultipartFile file) {
         SttTranscriptionResponseDto response = sttService.transcribe(file);
