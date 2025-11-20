@@ -30,6 +30,18 @@ public interface MissionApi {
     ResponseEntity<List<MissionOptionResponse>> getMissionOptions();
 
     @Operation(
+            summary = "사용자 미션 조회",
+            description = "사용자가 선택한 미션을 조회합니다.",
+            security = {@SecurityRequirement(name = "BearerAuth")}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "미션 조회 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
+            @ApiResponse(responseCode = "404", description = "선택한 미션이 없음")
+    })
+    ResponseEntity<MissionSelectResponse> getSelectedMission(@AuthenticationPrincipal UserDetails userDetails);
+
+    @Operation(
             summary = "미션 선택",
             description = "미션을 선택하여 사용자에게 할당합니다.",
             security = {@SecurityRequirement(name = "BearerAuth")}

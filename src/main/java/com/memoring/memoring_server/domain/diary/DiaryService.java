@@ -1,8 +1,6 @@
 package com.memoring.memoring_server.domain.diary;
 
-import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
-import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
-import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponse;
+import com.memoring.memoring_server.domain.diary.dto.*;
 import com.memoring.memoring_server.domain.memory.Memory;
 import com.memoring.memoring_server.domain.memory.MemoryRepository;
 import com.memoring.memoring_server.domain.mission.Mission;
@@ -23,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -56,17 +55,31 @@ public class DiaryService {
     }
 
     @Transactional
-    public void uploadDiaryImage(Long diaryId, MultipartFile file) {
+    public DiaryImagePresignedUrlResponse createDiaryImagePresignedUrl(Long diaryId, DiaryImagePresignedUrlRequest request) {
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(DiaryNotFoundException::new);
 
-        String imageS3Key = storageService.uploadDiaryImage(diaryId, file);
+        // 클라이언트가 업로드할 이미지 파일을 그대로 S3에 PUT할 수 있도록 서버에서 S3 키를 선생성한다.
+        // presigned URL 발급 시점에 키와 Content-Type을 확정해야 하므로 여기서 파일명을 기반으로 키를 만든다.
+        String originalFilename = request.fileName();
+        String ext = (originalFilename != null && originalFilename.contains("."))
+                ? originalFilename.substring(originalFilename.lastIndexOf("."))
+                : "";
 
+        String key = "diary/" + diaryId + "/" + UUID.randomUUID() + ext;
+
+        // 생성한 S3 키와 Content-Type을 이용해 제한된 시간 동안만 유효한 업로드 전용 presigned URL을 만든다.
+        // 이 URL을 받은 클라이언트는 서버를 거치지 않고 S3에 직접 PUT 요청을 보낼 수 있다.
+        String uploadUrl = storageService.generateUploadPresignedUrl(key, request.contentType());
+        Long fileSizeBytes = Optional.ofNullable(request.fileSizeBytes())
+                .orElseThrow(() -> new IllegalArgumentException("fileSizeBytes is required"));
         diaryImageRepository.findByDiaryId(diaryId)
                 .ifPresentOrElse(
-                        image -> image.update(imageS3Key, file.getSize()),
-                        () -> diaryImageRepository.save(DiaryImage.create(imageS3Key, file.getSize(), diary))
+                        image -> image.update(key, fileSizeBytes),
+                        () -> diaryImageRepository.save(DiaryImage.create(key, fileSizeBytes, diary))
                 );
+
+        return new DiaryImagePresignedUrlResponse(uploadUrl, key);
     }
 
     public Optional<DiaryDetailResponse> getDiary(Long diaryId) {

@@ -1,8 +1,6 @@
 package com.memoring.memoring_server.domain.diary;
 
-import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
-import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
-import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponse;
+import com.memoring.memoring_server.domain.diary.dto.*;
 import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,6 +20,13 @@ public interface DiaryApi {
             @ApiResponse(responseCode = "400", description = "기억과 미션의 소유자가 일치하지 않음")
     })
     ResponseEntity<DiaryCreateResponse> createDiary(@RequestBody DiaryCreateRequest request);
+
+    @Operation(summary = "일기 이미지 업로드 presigned URL 발급", description = "일기 이미지 업로드를 위한 presigned URL을 생성")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "presigned URL 발급 성공"),
+            @ApiResponse(responseCode = "404", description = "일기를 찾을 수 없음")
+    })
+    ResponseEntity<DiaryImagePresignedUrlResponse> createDiaryImagePresignedUrl(Long diaryId, DiaryImagePresignedUrlRequest request);
 
     @Operation(summary = "일기 단건 조회", description = "일기 ID로 상세 내용을 조회")
     @ApiResponses({

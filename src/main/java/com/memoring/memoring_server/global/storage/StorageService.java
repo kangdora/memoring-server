@@ -11,6 +11,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -80,33 +81,6 @@ public class StorageService {
         }
     }
 
-    // 1) 파일 업로드 → s3Key 반환
-    public String uploadDiaryImage(Long diaryId, MultipartFile file) {
-        String originalFilename = file.getOriginalFilename();
-        String ext = (originalFilename != null && originalFilename.contains("."))
-                ? originalFilename.substring(originalFilename.lastIndexOf("."))
-                : "";
-
-        String key = "diary/" + diaryId + "/" + UUID.randomUUID() + ext;
-
-        try {
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(key)
-                    .contentType(file.getContentType())
-                    .build();
-
-            s3Client.putObject(
-                    putObjectRequest,
-                    RequestBody.fromInputStream(file.getInputStream(), file.getSize())
-            );
-
-            return key;
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to upload file to S3", e);
-        }
-    }
-
     public boolean deleteFile(FileDeleteRequest request) {
         String key = request.s3key();
         if (key == null || key.isBlank()) {
@@ -148,6 +122,25 @@ public class StorageService {
                 .build();
 
         return s3Presigner.presignGetObject(presignRequest)
+                .url()
+                .toString();
+    }
+
+    public String generateUploadPresignedUrl(String key, String contentType) {
+        // 클라이언트가 직접 S3에 PUT 요청을 보낼 수 있는 presigned URL을 생성한다.
+        // 업로드 대상 객체의 키와 Content-Type을 미리 고정해 두어 의도한 위치와 타입으로만 업로드되도록 제한한다.
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .contentType(contentType)
+                .build();
+
+        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(PRESIGNED_URL_EXPIRATION_MINUTES))
+                .putObjectRequest(putObjectRequest)
+                .build();
+
+        return s3Presigner.presignPutObject(presignRequest)
                 .url()
                 .toString();
     }

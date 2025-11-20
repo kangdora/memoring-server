@@ -1,8 +1,6 @@
 package com.memoring.memoring_server.domain.diary;
 
-import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
-import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
-import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponse;
+import com.memoring.memoring_server.domain.diary.dto.*;
 import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -24,14 +22,13 @@ public class DiaryController implements DiaryApi {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{diaryId}/image")
-    public ResponseEntity<Void> uploadDiaryImage(
+    @PostMapping("/{diaryId}/image/presigned")
+    public ResponseEntity<DiaryImagePresignedUrlResponse> createDiaryImagePresignedUrl(
             @PathVariable Long diaryId,
-            @RequestPart("file") MultipartFile file
+            @RequestBody DiaryImagePresignedUrlRequest request
     ) {
-        diaryService.uploadDiaryImage(diaryId, file);
-
-        return ResponseEntity.noContent().build();
+        DiaryImagePresignedUrlResponse response = diaryService.createDiaryImagePresignedUrl(diaryId, request);
+        return ResponseEntity.ok(response);
     }
 
     @Override

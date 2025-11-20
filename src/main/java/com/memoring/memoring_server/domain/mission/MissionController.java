@@ -24,6 +24,13 @@ public class MissionController implements MissionApi {
     private final MissionService missionService;
 
     @Override
+    @GetMapping("/selected")
+    public ResponseEntity<MissionSelectResponse> getSelectedMission(@AuthenticationPrincipal UserDetails userDetails) {
+        MissionSelectResponse response = missionService.getSelectedMission(userDetails.getUsername());
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
     @GetMapping
     public ResponseEntity<List<MissionOptionResponse>> getMissionOptions() {
         List<MissionOptionResponse> response = missionService.getMissionOptions();

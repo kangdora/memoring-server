@@ -21,6 +21,18 @@ public class MissionService {
     private final UserMissionRepository userMissionRepository;
     private final UserService userService;
 
+    public MissionSelectResponse getSelectedMission(String username) {
+        UserMission userMission = userMissionRepository.findByUser(userService.getUserByUsername(username))
+                .orElseThrow(MissionNotFoundException::new);
+
+        Mission mission = userMission.getMission();
+        if (mission == null) {
+            throw new MissionNotFoundException();
+        }
+
+        return new MissionSelectResponse(mission.getId(), mission.getContent());
+    }
+
     public List<MissionOptionResponse> getMissionOptions() {
         return missionRepository.findAll().stream()
                 .map(mission -> new MissionOptionResponse(
