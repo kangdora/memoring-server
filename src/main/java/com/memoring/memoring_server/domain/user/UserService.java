@@ -17,18 +17,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserInfoResponseDto getUserInfo(String username) {
+    public UserInfoResponse getUserInfo(String username) {
         User user = getUserByUsername(username);
-        return UserInfoResponseDto.from(user);
+        return UserInfoResponse.from(user);
     }
 
     @Transactional
-    public User registerUser(SignUpRequestDto requestDto) {
-        validateSignupRequest(requestDto);
+    public User registerUser(SignUpRequest request) {
+        validateSignupRequest(request);
         User user = User.create(
-                requestDto.nickname(),
-                requestDto.username(),
-                passwordEncoder.encode(requestDto.password())
+                request.nickname(),
+                request.username(),
+                passwordEncoder.encode(request.password())
         );
 
         return userRepository.save(user);
@@ -39,12 +39,12 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
     }
 
-    private void validateSignupRequest(SignUpRequestDto requestDto) {
-        if (!requestDto.password().equals(requestDto.passwordConfirm())) {
+    private void validateSignupRequest(SignUpRequest request) {
+        if (!request.password().equals(request.passwordConfirm())) {
             throw new PasswordMismatchException();
         }
 
-        if (userRepository.existsByUsername(requestDto.username())) {
+        if (userRepository.existsByUsername(request.username())) {
             throw new DuplicateLoginIdException();
         }
     }

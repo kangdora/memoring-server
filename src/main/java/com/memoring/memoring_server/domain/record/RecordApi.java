@@ -1,6 +1,6 @@
 package com.memoring.memoring_server.domain.record;
 
-import com.memoring.memoring_server.domain.record.dto.RecordResponseDto;
+import com.memoring.memoring_server.domain.record.dto.RecordResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -25,7 +25,7 @@ public interface RecordApi {
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
             @ApiResponse(responseCode = "404", description = "선택된 미션이 없음")
     })
-    ResponseEntity<RecordResponseDto> uploadRecord(
+    ResponseEntity<RecordResponse> uploadRecord(
             @RequestPart("file") MultipartFile file,
             @AuthenticationPrincipal UserDetails userDetails
     );
@@ -40,5 +40,5 @@ public interface RecordApi {
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
             @ApiResponse(responseCode = "404", description = "녹음이 존재하지 않음")
     })
-    ResponseEntity<RecordResponseDto> getRecord(@AuthenticationPrincipal UserDetails userDetails);
+    ResponseEntity<RecordResponse> getRecord(@AuthenticationPrincipal UserDetails userDetails);
 }

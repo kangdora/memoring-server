@@ -1,7 +1,7 @@
 package com.memoring.memoring_server.global.storage;
 
-import com.memoring.memoring_server.global.storage.dto.FileDeleteRequestDto;
-import com.memoring.memoring_server.global.storage.dto.FileUploadResponseDto;
+import com.memoring.memoring_server.global.storage.dto.FileDeleteRequest;
+import com.memoring.memoring_server.global.storage.dto.FileUploadResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -53,7 +53,7 @@ public class StorageService {
         }
     }
 
-    public FileUploadResponseDto uploadFile(MultipartFile file) {
+    public FileUploadResponse uploadFile(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         String ext = (originalFilename != null && originalFilename.contains("."))
                 ? originalFilename.substring(originalFilename.lastIndexOf("."))
@@ -74,7 +74,7 @@ public class StorageService {
             );
 
             String presignedUrl = generatePresignedUrl(key);
-            return new FileUploadResponseDto(originalFilename, presignedUrl, key);
+            return new FileUploadResponse(originalFilename, presignedUrl, key);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to upload file to S3", e);
         }
@@ -107,7 +107,7 @@ public class StorageService {
         }
     }
 
-    public boolean deleteFile(FileDeleteRequestDto request) {
+    public boolean deleteFile(FileDeleteRequest request) {
         String key = request.s3key();
         if (key == null || key.isBlank()) {
             return false;

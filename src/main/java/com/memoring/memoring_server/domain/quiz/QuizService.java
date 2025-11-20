@@ -2,12 +2,12 @@ package com.memoring.memoring_server.domain.quiz;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.memoring.memoring_server.domain.quiz.dto.QuizAnswerDto;
-import com.memoring.memoring_server.domain.quiz.dto.QuizAnswerRequestDto;
-import com.memoring.memoring_server.domain.quiz.dto.QuizItemResponseDto;
-import com.memoring.memoring_server.domain.quiz.dto.QuizResultRequestDto;
-import com.memoring.memoring_server.domain.quiz.dto.QuizResultResponseDto;
-import com.memoring.memoring_server.domain.quiz.dto.QuizSetResponseDto;
+import com.memoring.memoring_server.domain.quiz.dto.QuizAnswer;
+import com.memoring.memoring_server.domain.quiz.dto.QuizAnswerRequest;
+import com.memoring.memoring_server.domain.quiz.dto.QuizItemResponse;
+import com.memoring.memoring_server.domain.quiz.dto.QuizResultRequest;
+import com.memoring.memoring_server.domain.quiz.dto.QuizResultResponse;
+import com.memoring.memoring_server.domain.quiz.dto.QuizSetResponse;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.global.exception.QuizAlreadyTakenTodayException;
@@ -39,7 +39,7 @@ public class QuizService {
     private final ObjectMapper objectMapper;
     private final QuizGradingService quizGradingService;
 
-    public List<QuizSetResponseDto> getQuizSets(String username) {
+    public List<QuizSetResponse> getQuizSets(String username) {
         User user = userService.getUserByUsername(username);
         List<QuizSet> quizSets = quizSetRepository.findAllByOrderByIdAsc();
         if (quizSets.isEmpty()) {
@@ -47,11 +47,11 @@ public class QuizService {
         }
 
         List<Quiz> quizzes = quizRepository.findAllByQuizSetInOrderByQuizSetIdAscIdAsc(quizSets);
-        Map<Long, List<QuizItemResponseDto>> quizzesBySet = quizzes.stream()
+        Map<Long, List<QuizItemResponse>> quizzesBySet = quizzes.stream()
                 .collect(Collectors.groupingBy(
                         quiz -> quiz.getQuizSet().getId(),
                         LinkedHashMap::new,
-                        Collectors.mapping(quiz -> new QuizItemResponseDto(
+                        Collectors.mapping(quiz -> new QuizItemResponse(
                                 quiz.getId(),
                                 quiz.getContent()
                         ), Collectors.toList())
@@ -64,14 +64,14 @@ public class QuizService {
                 .map(set -> {
                     int seq = sequence.getAndIncrement();
                     boolean unlocked = seq <= unlockedThreshold;
-                    List<QuizItemResponseDto> quizItems = quizzesBySet.getOrDefault(set.getId(), List.of());
-                    return new QuizSetResponseDto(set.getId(), seq, unlocked, quizItems);
+                    List<QuizItemResponse> quizItems = quizzesBySet.getOrDefault(set.getId(), List.of());
+                    return new QuizSetResponse(set.getId(), seq, unlocked, quizItems);
                 })
                 .toList();
     }
 
     @Transactional
-    public QuizResultResponseDto createQuizResult(Long quizSetId, QuizResultRequestDto request, String username) {
+    public QuizResultResponse createQuizResult(Long quizSetId, QuizResultRequest request, String username) {
         User user = userService.getUserByUsername(username);
         QuizSet quizSet = quizSetRepository.findById(quizSetId)
                 .orElseThrow(QuizSetNotFoundException::new);
@@ -87,9 +87,9 @@ public class QuizService {
             throw new QuizAlreadyTakenTodayException();
         }
 
-        Map<Integer, QuizAnswerRequestDto> normalizedAnswers = normalizeAnswers(request == null ? null : request.answers());
+        Map<Integer, QuizAnswerRequest> normalizedAnswers = normalizeAnswers(request == null ? null : request.answers());
         List<Quiz> quizzes = quizRepository.findAllByQuizSetOrderByIdAsc(quizSet);
-        Map<Integer, QuizAnswerDto> gradedAnswers = gradeAnswers(quizzes, normalizedAnswers);
+        Map<Integer, QuizAnswer> gradedAnswers = gradeAnswers(quizzes, normalizedAnswers);
         int correctCount = countCorrectAnswers(gradedAnswers);
         String answerJson = writeAnswers(gradedAnswers);
 
@@ -102,7 +102,7 @@ public class QuizService {
         return toQuizResultResponse(quizResult, gradedAnswers);
     }
 
-    private Map<Integer, QuizAnswerRequestDto> normalizeAnswers(Map<Integer, QuizAnswerRequestDto> answers) {
+    private Map<Integer, QuizAnswerRequest> normalizeAnswers(Map<Integer, QuizAnswerRequest> answers) {
         if (answers == null || answers.isEmpty()) {
             throw new QuizAnswerRequiredException();
         }
@@ -117,7 +117,7 @@ public class QuizService {
                 ));
     }
 
-    private Map<Integer, QuizAnswerDto> gradeAnswers(List<Quiz> quizzes, Map<Integer, QuizAnswerRequestDto> answers) {
+    private Map<Integer, QuizAnswer> gradeAnswers(List<Quiz> quizzes, Map<Integer, QuizAnswerRequest> answers) {
         if (quizzes.isEmpty()) {
             throw new QuizSetNotFoundException();
         }
@@ -126,10 +126,10 @@ public class QuizService {
             throw new QuizAnswerRequiredException();
         }
 
-        Map<Integer, QuizAnswerDto> graded = new LinkedHashMap<>();
+        Map<Integer, QuizAnswer> graded = new LinkedHashMap<>();
         for (int index = 0; index < quizzes.size(); index++) {
             int questionNumber = index + 1;
-            QuizAnswerRequestDto answerRequest = answers.get(questionNumber);
+            QuizAnswerRequest answerRequest = answers.get(questionNumber);
             if (answerRequest == null) {
                 throw new QuizAnswerRequiredException();
             }
@@ -137,20 +137,20 @@ public class QuizService {
                 throw new QuizAnswerRequiredException();
             }
             Quiz quiz = quizzes.get(index);
-            QuizAnswerDto evaluated = quizGradingService.grade(quiz, answerRequest.userAnswer());
+            QuizAnswer evaluated = quizGradingService.grade(quiz, answerRequest.userAnswer());
             graded.put(questionNumber, evaluated);
         }
         return graded;
     }
 
-    private int countCorrectAnswers(Map<Integer, QuizAnswerDto> answers) {
+    private int countCorrectAnswers(Map<Integer, QuizAnswer> answers) {
         return (int) answers.values().stream()
                 .filter(answer -> Boolean.TRUE.equals(answer.isCorrect()))
                 .count();
     }
 
-    private QuizResultResponseDto toQuizResultResponse(QuizResult quizResult, Map<Integer, QuizAnswerDto> answers) {
-        return new QuizResultResponseDto(
+    private QuizResultResponse toQuizResultResponse(QuizResult quizResult, Map<Integer, QuizAnswer> answers) {
+        return new QuizResultResponse(
                 quizResult.getId(),
                 quizResult.getQuizSet().getId(),
                 quizResult.getTakenAt(),
@@ -167,7 +167,7 @@ public class QuizService {
         return Math.toIntExact(sequence);
     }
 
-    private String writeAnswers(Map<Integer, QuizAnswerDto> answers) {
+    private String writeAnswers(Map<Integer, QuizAnswer> answers) {
         try {
             return objectMapper.writeValueAsString(answers);
         } catch (JsonProcessingException e) {

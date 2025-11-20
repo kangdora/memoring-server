@@ -1,7 +1,7 @@
 package com.memoring.memoring_server.domain.comment;
 
-import com.memoring.memoring_server.domain.comment.dto.CommentCreateRequestDto;
-import com.memoring.memoring_server.domain.comment.dto.CommentResponseDto;
+import com.memoring.memoring_server.domain.comment.dto.CommentCreateRequest;
+import com.memoring.memoring_server.domain.comment.dto.CommentResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -17,7 +17,7 @@ public interface CommentApi {
             @ApiResponse(responseCode = "200", description = "댓글 생성 성공"),
             @ApiResponse(responseCode = "404", description = "대상 일기 또는 사용자를 찾을 수 없음")
     })
-    ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentCreateRequestDto dto);
+    ResponseEntity<CommentResponse> createComment(@RequestBody CommentCreateRequest request);
 
     @Operation(summary = "댓글 삭제", description = "댓글 ID로 댓글 삭제")
     @ApiResponses({

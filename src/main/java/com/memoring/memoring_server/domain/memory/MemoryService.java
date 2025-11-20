@@ -4,8 +4,8 @@ import com.memoring.memoring_server.domain.diary.Diary;
 import com.memoring.memoring_server.domain.diary.DiaryImage;
 import com.memoring.memoring_server.domain.diary.DiaryImageRepository;
 import com.memoring.memoring_server.domain.diary.DiaryRepository;
-import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponseDto;
-import com.memoring.memoring_server.domain.memory.dto.MemoryDiarySummaryDto;
+import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponse;
+import com.memoring.memoring_server.domain.memory.dto.MemoryDiarySummary;
 import com.memoring.memoring_server.global.exception.MemoryNotFoundException;
 import com.memoring.memoring_server.global.storage.StorageService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class MemoryService {
     private final DiaryImageRepository diaryImageRepository;
     private final StorageService storageService;
 
-    public List<MemoryDiarySummaryDto> getRecentMemories(Long memoryId) {
+    public List<MemoryDiarySummary> getRecentMemories(Long memoryId) {
         validateMemory(memoryId);
         List<Diary> diaries = diaryRepository.findTop3ByMemoryIdOrderByCreatedAtDesc(memoryId);
         return diaries.stream()
@@ -35,7 +35,7 @@ public class MemoryService {
                 .toList();
     }
 
-    public List<MemoryDiaryResponseDto> getMemories(Long memoryId) {
+    public List<MemoryDiaryResponse> getMemories(Long memoryId) {
         validateMemory(memoryId);
         List<Diary> diaries = diaryRepository.findAllByMemoryIdOrderByCreatedAtDesc(memoryId);
         return diaries.stream()
@@ -49,8 +49,8 @@ public class MemoryService {
         }
     }
 
-    private MemoryDiarySummaryDto toSummaryDto(Diary diary) {
-        return new MemoryDiarySummaryDto(
+    private MemoryDiarySummary toSummaryDto(Diary diary) {
+        return new MemoryDiarySummary(
                 diary.getId(),
                 extractDate(diary.getCreatedAt()),
                 getImageUrl(diary.getId()),
@@ -58,8 +58,8 @@ public class MemoryService {
         );
     }
 
-    private MemoryDiaryResponseDto toResponseDto(Diary diary) {
-        return new MemoryDiaryResponseDto(
+    private MemoryDiaryResponse toResponseDto(Diary diary) {
+        return new MemoryDiaryResponse(
                 diary.getId(),
                 extractDate(diary.getCreatedAt()),
                 getImageUrl(diary.getId()),

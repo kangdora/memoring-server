@@ -1,8 +1,8 @@
 package com.memoring.memoring_server.domain.mission;
 
-import com.memoring.memoring_server.domain.mission.dto.MissionOptionResponseDto;
-import com.memoring.memoring_server.domain.mission.dto.MissionSelectRequestDto;
-import com.memoring.memoring_server.domain.mission.dto.MissionSelectResponseDto;
+import com.memoring.memoring_server.domain.mission.dto.MissionOptionResponse;
+import com.memoring.memoring_server.domain.mission.dto.MissionSelectRequest;
+import com.memoring.memoring_server.domain.mission.dto.MissionSelectResponse;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.global.exception.MissionNotFoundException;
@@ -21,9 +21,9 @@ public class MissionService {
     private final UserMissionRepository userMissionRepository;
     private final UserService userService;
 
-    public List<MissionOptionResponseDto> getMissionOptions() {
+    public List<MissionOptionResponse> getMissionOptions() {
         return missionRepository.findAll().stream()
-                .map(mission -> new MissionOptionResponseDto(
+                .map(mission -> new MissionOptionResponse(
                         mission.getId(),
                         mission.getContent()
                 ))
@@ -31,10 +31,10 @@ public class MissionService {
     }
 
     @Transactional
-    public MissionSelectResponseDto selectMission(MissionSelectRequestDto dto, String username) {
+    public MissionSelectResponse selectMission(MissionSelectRequest request, String username) {
         User user = userService.getUserByUsername(username);
 
-        Mission mission = missionRepository.findById(dto.missionId())
+        Mission mission = missionRepository.findById(request.missionId())
                 .orElseThrow(MissionNotFoundException::new);
 
         UserMission userMission = userMissionRepository.findByUser(user)
@@ -45,7 +45,7 @@ public class MissionService {
                 .orElseGet(() -> UserMission.create(user, mission));
 
         UserMission saved = userMissionRepository.save(userMission);
-        return new MissionSelectResponseDto(saved.getId(), mission.getContent());
+        return new MissionSelectResponse(saved.getId(), mission.getContent());
     }
 
     @Transactional

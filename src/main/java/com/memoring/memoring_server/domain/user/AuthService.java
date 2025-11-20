@@ -24,9 +24,9 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
 
-    public UserLoginResponseDto login(LogInRequestDto requestDto) {
+    public UserLoginResponse login(LogInRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(requestDto.username(), requestDto.password())
+                new UsernamePasswordAuthenticationToken(request.username(), request.password())
         );
 
         User user = userService.getUserByUsername(authentication.getName());
@@ -39,18 +39,18 @@ public class AuthService {
     }
 
     @Transactional
-    public UserSignUpResponseDto signup(SignUpRequestDto requestDto) {
-        User user = userService.registerUser(requestDto);
+    public UserSignUpResponse signup(SignUpRequest request) {
+        User user = userService.registerUser(request);
 
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getUsername(), requestDto.password())
+                new UsernamePasswordAuthenticationToken(user.getUsername(), request.password())
         );
 
         String accessToken = jwtTokenProvider.generateAccessToken(authentication);
         String refreshToken = jwtTokenProvider.generateRefreshToken(authentication);
         saveRefreshToken(user, refreshToken);
 
-        return new UserSignUpResponseDto(
+        return new UserSignUpResponse(
                 "회원가입에 성공했습니다.",
                 accessToken,
                 refreshToken,
@@ -62,8 +62,8 @@ public class AuthService {
     }
 
     @Transactional
-    public UserLoginResponseDto refresh(TokenRefreshRequestDto requestDto) {
-        RefreshToken refreshToken = refreshTokenService.getValidRefreshToken(requestDto.refreshToken());
+    public UserLoginResponse refresh(TokenRefreshRequest request) {
+        RefreshToken refreshToken = refreshTokenService.getValidRefreshToken(request.refreshToken());
         User user = refreshToken.getUser();
 
         String username = user.getUsername();
@@ -86,8 +86,8 @@ public class AuthService {
         refreshTokenService.saveRefreshToken(user, refreshToken, expiry);
     }
 
-    private UserLoginResponseDto buildTokenResponse(String accessToken, String refreshToken) {
-        return new UserLoginResponseDto(
+    private UserLoginResponse buildTokenResponse(String accessToken, String refreshToken) {
+        return new UserLoginResponse(
                 accessToken,
                 refreshToken,
                 TOKEN_TYPE,

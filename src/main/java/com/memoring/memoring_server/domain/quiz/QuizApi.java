@@ -1,8 +1,8 @@
 package com.memoring.memoring_server.domain.quiz;
 
-import com.memoring.memoring_server.domain.quiz.dto.QuizResultRequestDto;
-import com.memoring.memoring_server.domain.quiz.dto.QuizResultResponseDto;
-import com.memoring.memoring_server.domain.quiz.dto.QuizSetResponseDto;
+import com.memoring.memoring_server.domain.quiz.dto.QuizResultRequest;
+import com.memoring.memoring_server.domain.quiz.dto.QuizResultResponse;
+import com.memoring.memoring_server.domain.quiz.dto.QuizSetResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -28,7 +28,7 @@ public interface QuizApi {
             @ApiResponse(responseCode = "200", description = "퀴즈 세트 조회 성공"),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자")
     })
-    ResponseEntity<List<QuizSetResponseDto>> getQuizSets(@AuthenticationPrincipal UserDetails userDetails);
+    ResponseEntity<List<QuizSetResponse>> getQuizSets(@AuthenticationPrincipal UserDetails userDetails);
 
     @Operation(
             summary = "퀴즈 결과 저장",
@@ -42,9 +42,9 @@ public interface QuizApi {
             @ApiResponse(responseCode = "403", description = "아직 열리지 않은 퀴즈 세트"),
             @ApiResponse(responseCode = "404", description = "퀴즈 세트를 찾을 수 없음")
     })
-    ResponseEntity<QuizResultResponseDto> submitQuizResult(
+    ResponseEntity<QuizResultResponse> submitQuizResult(
             @PathVariable Long quizSetId,
-            @RequestBody QuizResultRequestDto request,
+            @RequestBody QuizResultRequest request,
             @AuthenticationPrincipal UserDetails userDetails
     );
 

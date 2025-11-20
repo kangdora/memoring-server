@@ -1,7 +1,7 @@
 package com.memoring.memoring_server.domain.comment;
 
-import com.memoring.memoring_server.domain.comment.dto.CommentCreateRequestDto;
-import com.memoring.memoring_server.domain.comment.dto.CommentResponseDto;
+import com.memoring.memoring_server.domain.comment.dto.CommentCreateRequest;
+import com.memoring.memoring_server.domain.comment.dto.CommentResponse;
 import com.memoring.memoring_server.domain.diary.Diary;
 import com.memoring.memoring_server.domain.diary.DiaryRepository;
 import com.memoring.memoring_server.domain.user.User;
@@ -23,16 +23,16 @@ public class CommentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CommentResponseDto createComment(CommentCreateRequestDto dto) {
-        Diary diary = diaryRepository.findById(dto.diaryId())
+    public CommentResponse createComment(CommentCreateRequest request) {
+        Diary diary = diaryRepository.findById(request.diaryId())
                 .orElseThrow(DiaryNotFoundException::new);
-        User user = userRepository.findById(dto.userId())
+        User user = userRepository.findById(request.userId())
                 .orElseThrow(UserNotFoundException::new);
 
-        Comment comment = Comment.create(diary, user, dto.content());
+        Comment comment = Comment.create(diary, user, request.content());
         Comment savedComment = commentRepository.save(comment);
 
-        return new CommentResponseDto(
+        return new CommentResponse(
                 savedComment.getId(),
                 diary.getId(),
                 user.getId(),

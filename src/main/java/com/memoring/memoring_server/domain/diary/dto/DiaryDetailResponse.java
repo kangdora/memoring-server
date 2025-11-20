@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 
 @Schema(description = "일기 상세 조회 응답")
-public record DiaryDetailResponseDto(
+public record DiaryDetailResponse(
         @Schema(description = "일기 작성 날짜")
         LocalDate date,
 

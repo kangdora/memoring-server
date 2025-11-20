@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.Map;
 
 @Schema(description = "퀴즈 결과 응답")
-public record QuizResultResponseDto(
+public record QuizResultResponse(
         @Schema(description = "퀴즈 결과 ID")
         Long quizResultId,
 
@@ -17,7 +17,7 @@ public record QuizResultResponseDto(
         LocalDate takenAt,
 
         @Schema(description = "사용자의 답안")
-        Map<Integer, QuizAnswerDto> answers,
+        Map<Integer, QuizAnswer> answers,
 
         @Schema(description = "정답 개수")
         Integer answerCount

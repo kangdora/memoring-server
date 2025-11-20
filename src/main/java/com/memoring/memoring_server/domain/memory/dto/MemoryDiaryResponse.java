@@ -1,11 +1,12 @@
 package com.memoring.memoring_server.domain.memory.dto;
 
+import com.memoring.memoring_server.domain.diary.Emotion;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
 
-@Schema(description = "메모리 일기 요약")
-public record MemoryDiarySummaryDto(
+@Schema(description = "메모리 일기 상세")
+public record MemoryDiaryResponse(
         @Schema(description = "일기 ID")
         Long diaryId,
 
@@ -16,6 +17,9 @@ public record MemoryDiarySummaryDto(
         String imageUrl,
 
         @Schema(description = "일기 내용")
-        String content
+        String content,
+
+        @Schema(description = "작성자의 기분")
+        Emotion mood
 ) {
 }

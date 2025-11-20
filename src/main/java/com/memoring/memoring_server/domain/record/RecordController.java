@@ -1,6 +1,6 @@
 package com.memoring.memoring_server.domain.record;
 
-import com.memoring.memoring_server.domain.record.dto.RecordResponseDto;
+import com.memoring.memoring_server.domain.record.dto.RecordResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,17 +22,17 @@ public class RecordController implements RecordApi {
 
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<RecordResponseDto> uploadRecord(
+    public ResponseEntity<RecordResponse> uploadRecord(
             @RequestPart("file") MultipartFile file,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        RecordResponseDto response = recordService.saveRecord(file, userDetails.getUsername());
+        RecordResponse response = recordService.saveRecord(file, userDetails.getUsername());
         return ResponseEntity.ok(response);
     }
 
     @Override
     @GetMapping
-    public ResponseEntity<RecordResponseDto> getRecord(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<RecordResponse> getRecord(@AuthenticationPrincipal UserDetails userDetails) {
         return recordService.getRecord(userDetails.getUsername())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());

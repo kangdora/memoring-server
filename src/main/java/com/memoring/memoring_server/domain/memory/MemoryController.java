@@ -1,7 +1,7 @@
 package com.memoring.memoring_server.domain.memory;
 
-import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponseDto;
-import com.memoring.memoring_server.domain.memory.dto.MemoryDiarySummaryDto;
+import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponse;
+import com.memoring.memoring_server.domain.memory.dto.MemoryDiarySummary;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +17,13 @@ public class MemoryController implements MemoryApi {
 
     @Override
     @GetMapping("/{memoryId}/recent")
-    public ResponseEntity<List<MemoryDiarySummaryDto>> getRecentMemories(@PathVariable Long memoryId) {
+    public ResponseEntity<List<MemoryDiarySummary>> getRecentMemories(@PathVariable Long memoryId) {
         return ResponseEntity.ok(memoryService.getRecentMemories(memoryId));
     }
 
     @Override
     @GetMapping("/{memoryId}")
-    public ResponseEntity<List<MemoryDiaryResponseDto>> getMemories(@PathVariable Long memoryId) {
+    public ResponseEntity<List<MemoryDiaryResponse>> getMemories(@PathVariable Long memoryId) {
         return ResponseEntity.ok(memoryService.getMemories(memoryId));
     }
 }

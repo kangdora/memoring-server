@@ -1,7 +1,7 @@
 package com.memoring.memoring_server.global.external.openai.stt;
 
 import com.memoring.memoring_server.global.external.openai.OpenAiProperties;
-import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponseDto;
+import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -31,7 +31,7 @@ public class SttService {
                 .build();
     }
 
-    public SttTranscriptionResponseDto transcribe(MultipartFile file) {
+    public SttTranscriptionResponse transcribe(MultipartFile file) {
         MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
         bodyBuilder.part("file", file.getResource())
                 .filename(Objects.requireNonNull(file.getOriginalFilename()));
@@ -50,7 +50,7 @@ public class SttService {
                 throw new IllegalStateException("Empty response from OpenAI Whisper");
             }
 
-            return new SttTranscriptionResponseDto(response.text());
+            return new SttTranscriptionResponse(response.text());
         } catch (WebClientResponseException e) {
             throw new IllegalStateException("Failed to call OpenAI Whisper API: " + e.getResponseBodyAsString(), e);
         }

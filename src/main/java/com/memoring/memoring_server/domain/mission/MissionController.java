@@ -1,8 +1,8 @@
 package com.memoring.memoring_server.domain.mission;
 
-import com.memoring.memoring_server.domain.mission.dto.MissionOptionResponseDto;
-import com.memoring.memoring_server.domain.mission.dto.MissionSelectRequestDto;
-import com.memoring.memoring_server.domain.mission.dto.MissionSelectResponseDto;
+import com.memoring.memoring_server.domain.mission.dto.MissionOptionResponse;
+import com.memoring.memoring_server.domain.mission.dto.MissionSelectRequest;
+import com.memoring.memoring_server.domain.mission.dto.MissionSelectResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,18 +25,18 @@ public class MissionController implements MissionApi {
 
     @Override
     @GetMapping
-    public ResponseEntity<List<MissionOptionResponseDto>> getMissionOptions() {
-        List<MissionOptionResponseDto> response = missionService.getMissionOptions();
+    public ResponseEntity<List<MissionOptionResponse>> getMissionOptions() {
+        List<MissionOptionResponse> response = missionService.getMissionOptions();
         return ResponseEntity.ok(response);
     }
 
     @Override
     @PostMapping
-    public ResponseEntity<MissionSelectResponseDto> selectMission(
-            @RequestBody MissionSelectRequestDto dto,
+    public ResponseEntity<MissionSelectResponse> selectMission(
+            @RequestBody MissionSelectRequest request,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        MissionSelectResponseDto response = missionService.selectMission(dto, userDetails.getUsername());
+        MissionSelectResponse response = missionService.selectMission(request, userDetails.getUsername());
         return ResponseEntity.ok(response);
     }
 

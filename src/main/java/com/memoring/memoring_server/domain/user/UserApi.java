@@ -1,11 +1,11 @@
 package com.memoring.memoring_server.domain.user;
 
-import com.memoring.memoring_server.domain.user.dto.LogInRequestDto;
-import com.memoring.memoring_server.domain.user.dto.SignUpRequestDto;
-import com.memoring.memoring_server.domain.user.dto.TokenRefreshRequestDto;
-import com.memoring.memoring_server.domain.user.dto.UserInfoResponseDto;
-import com.memoring.memoring_server.domain.user.dto.UserLoginResponseDto;
-import com.memoring.memoring_server.domain.user.dto.UserSignUpResponseDto;
+import com.memoring.memoring_server.domain.user.dto.LogInRequest;
+import com.memoring.memoring_server.domain.user.dto.SignUpRequest;
+import com.memoring.memoring_server.domain.user.dto.TokenRefreshRequest;
+import com.memoring.memoring_server.domain.user.dto.UserInfoResponse;
+import com.memoring.memoring_server.domain.user.dto.UserLoginResponse;
+import com.memoring.memoring_server.domain.user.dto.UserSignUpResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -30,7 +30,7 @@ public interface UserApi {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "현재 사용자 정보 조회 성공")
     })
-    ResponseEntity<UserInfoResponseDto> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails);
+    ResponseEntity<UserInfoResponse> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails);
 
     @Operation(
             summary = "로그인",
@@ -40,7 +40,7 @@ public interface UserApi {
             @ApiResponse(responseCode = "200", description = "로그인 성공 및 토큰 발급"),
             @ApiResponse(responseCode = "401", description = "아이디 또는 비밀번호가 올바르지 않음")
     })
-    ResponseEntity<UserLoginResponseDto> login(@RequestBody LogInRequestDto dto);
+    ResponseEntity<UserLoginResponse> login(@RequestBody LogInRequest request);
 
     @Operation(
             summary = "로그아웃",
@@ -61,7 +61,7 @@ public interface UserApi {
             @ApiResponse(responseCode = "200", description = "토큰 재발급 성공"),
             @ApiResponse(responseCode = "401", description = "리프레시 토큰이 만료되었거나 유효하지 않음")
     })
-    ResponseEntity<UserLoginResponseDto> refresh(@RequestBody TokenRefreshRequestDto dto);
+    ResponseEntity<UserLoginResponse> refresh(@RequestBody TokenRefreshRequest request);
 
     @Operation(
             summary = "회원가입",
@@ -71,5 +71,5 @@ public interface UserApi {
             @ApiResponse(responseCode = "201", description = "회원가입 성공 및 사용자 생성 완료"),
             @ApiResponse(responseCode = "400", description = "잘못된 회원가입 요청 데이터")
     })
-    ResponseEntity<UserSignUpResponseDto> signup(@RequestBody SignUpRequestDto dto);
+    ResponseEntity<UserSignUpResponse> signup(@RequestBody SignUpRequest request);
 }

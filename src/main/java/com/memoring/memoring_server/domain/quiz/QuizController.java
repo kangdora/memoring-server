@@ -1,8 +1,8 @@
 package com.memoring.memoring_server.domain.quiz;
 
-import com.memoring.memoring_server.domain.quiz.dto.QuizResultRequestDto;
-import com.memoring.memoring_server.domain.quiz.dto.QuizResultResponseDto;
-import com.memoring.memoring_server.domain.quiz.dto.QuizSetResponseDto;
+import com.memoring.memoring_server.domain.quiz.dto.QuizResultRequest;
+import com.memoring.memoring_server.domain.quiz.dto.QuizResultResponse;
+import com.memoring.memoring_server.domain.quiz.dto.QuizSetResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,19 +25,19 @@ public class QuizController implements QuizApi {
 
     @Override
     @GetMapping
-    public ResponseEntity<List<QuizSetResponseDto>> getQuizSets(@AuthenticationPrincipal UserDetails userDetails) {
-        List<QuizSetResponseDto> response = quizService.getQuizSets(userDetails.getUsername());
+    public ResponseEntity<List<QuizSetResponse>> getQuizSets(@AuthenticationPrincipal UserDetails userDetails) {
+        List<QuizSetResponse> response = quizService.getQuizSets(userDetails.getUsername());
         return ResponseEntity.ok(response);
     }
 
     @Override
     @PostMapping("/{quizSetId}/results")
-    public ResponseEntity<QuizResultResponseDto> submitQuizResult(
+    public ResponseEntity<QuizResultResponse> submitQuizResult(
             @PathVariable Long quizSetId,
-            @RequestBody QuizResultRequestDto request,
+            @RequestBody QuizResultRequest request,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        QuizResultResponseDto response = quizService.createQuizResult(quizSetId, request, userDetails.getUsername());
+        QuizResultResponse response = quizService.createQuizResult(quizSetId, request, userDetails.getUsername());
         return ResponseEntity.ok(response);
     }
 

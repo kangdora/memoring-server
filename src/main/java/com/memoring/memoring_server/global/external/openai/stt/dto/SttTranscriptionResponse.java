@@ -1,4 +1,4 @@
 package com.memoring.memoring_server.global.external.openai.stt.dto;
 
-public record SttTranscriptionResponseDto(String transcript) {
+public record SttTranscriptionResponse(String transcript) {
 }

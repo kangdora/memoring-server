@@ -1,8 +1,8 @@
 package com.memoring.memoring_server.domain.mission;
 
-import com.memoring.memoring_server.domain.mission.dto.MissionOptionResponseDto;
-import com.memoring.memoring_server.domain.mission.dto.MissionSelectRequestDto;
-import com.memoring.memoring_server.domain.mission.dto.MissionSelectResponseDto;
+import com.memoring.memoring_server.domain.mission.dto.MissionOptionResponse;
+import com.memoring.memoring_server.domain.mission.dto.MissionSelectRequest;
+import com.memoring.memoring_server.domain.mission.dto.MissionSelectResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -27,7 +27,7 @@ public interface MissionApi {
             @ApiResponse(responseCode = "200", description = "미션 목록 조회 성공"),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자")
     })
-    ResponseEntity<List<MissionOptionResponseDto>> getMissionOptions();
+    ResponseEntity<List<MissionOptionResponse>> getMissionOptions();
 
     @Operation(
             summary = "미션 선택",
@@ -39,8 +39,8 @@ public interface MissionApi {
             @ApiResponse(responseCode = "400", description = "잘못된 미션 선택"),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자")
     })
-    ResponseEntity<MissionSelectResponseDto> selectMission(
-            @RequestBody MissionSelectRequestDto dto,
+    ResponseEntity<MissionSelectResponse> selectMission(
+            @RequestBody MissionSelectRequest request,
             @AuthenticationPrincipal UserDetails userDetails
     );
 

@@ -2,7 +2,7 @@ package com.memoring.memoring_server.domain.quiz;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.memoring.memoring_server.domain.quiz.dto.QuizAnswerDto;
+import com.memoring.memoring_server.domain.quiz.dto.QuizAnswer;
 import com.memoring.memoring_server.global.exception.QuizGradingFailedException;
 import com.memoring.memoring_server.global.external.openai.OpenAiProperties;
 import org.springframework.http.HttpHeaders;
@@ -36,7 +36,7 @@ public class QuizGradingService {
                 .build();
     }
 
-    public QuizAnswerDto grade(Quiz quiz, String userAnswer) {
+    public QuizAnswer grade(Quiz quiz, String userAnswer) {
         try {
             ChatCompletionRequest request = new ChatCompletionRequest(
                     openAiProperties.getChatModel(),
@@ -64,7 +64,7 @@ public class QuizGradingService {
 
             String rawContent = choice.message().content();
             String jsonContent = extractJson(rawContent);
-            QuizAnswerDto result = objectMapper.readValue(jsonContent, QuizAnswerDto.class);
+            QuizAnswer result = objectMapper.readValue(jsonContent, QuizAnswer.class);
             if (result == null || result.userAnswer() == null || result.isCorrect() == null) {
                 throw new QuizGradingFailedException();
             }

@@ -1,9 +1,9 @@
 package com.memoring.memoring_server.domain.diary;
 
-import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequestDto;
-import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponseDto;
-import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponseDto;
-import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponseDto;
+import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
+import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
+import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponse;
+import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -21,14 +21,14 @@ public interface DiaryApi {
             @ApiResponse(responseCode = "404", description = "기억 또는 미션을 찾을 수 없음"),
             @ApiResponse(responseCode = "400", description = "기억과 미션의 소유자가 일치하지 않음")
     })
-    ResponseEntity<DiaryCreateResponseDto> createDiary(@RequestBody DiaryCreateRequestDto dto);
+    ResponseEntity<DiaryCreateResponse> createDiary(@RequestBody DiaryCreateRequest request);
 
     @Operation(summary = "일기 단건 조회", description = "일기 ID로 상세 내용을 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "일기 조회 성공"),
             @ApiResponse(responseCode = "404", description = "해당 일기를 찾을 수 없음")
     })
-    ResponseEntity<DiaryDetailResponseDto> getDiary(Long diaryId);
+    ResponseEntity<DiaryDetailResponse> getDiary(Long diaryId);
 
     @Operation(summary = "일기 삭제", description = "일기 ID로 저장된 일기를 삭제")
     @ApiResponses({
@@ -43,5 +43,5 @@ public interface DiaryApi {
             @ApiResponse(responseCode = "400", description = "잘못된 파일 요청"),
             @ApiResponse(responseCode = "500", description = "OpenAI 연동 오류")
     })
-    ResponseEntity<SttTranscriptionResponseDto> transcribeDiaryAudio(MultipartFile file);
+    ResponseEntity<SttTranscriptionResponse> transcribeDiaryAudio(MultipartFile file);
 }

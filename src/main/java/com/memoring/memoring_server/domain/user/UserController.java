@@ -22,15 +22,15 @@ public class UserController implements UserApi{
 
     @Override
     @GetMapping("/me")
-    public ResponseEntity<UserInfoResponseDto> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
-        UserInfoResponseDto response = userService.getUserInfo(userDetails.getUsername());
+    public ResponseEntity<UserInfoResponse> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        UserInfoResponse response = userService.getUserInfo(userDetails.getUsername());
         return ResponseEntity.ok(response);
     }
 
     @Override
     @PostMapping("/login")
-    public ResponseEntity<UserLoginResponseDto> login(@RequestBody LogInRequestDto dto) {
-        UserLoginResponseDto response = authService.login(dto);
+    public ResponseEntity<UserLoginResponse> login(@RequestBody LogInRequest request) {
+        UserLoginResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 
@@ -43,15 +43,15 @@ public class UserController implements UserApi{
 
     @Override
     @PostMapping("/refresh")
-    public ResponseEntity<UserLoginResponseDto> refresh(@RequestBody TokenRefreshRequestDto dto) {
-        UserLoginResponseDto response = authService.refresh(dto);
+    public ResponseEntity<UserLoginResponse> refresh(@RequestBody TokenRefreshRequest request) {
+        UserLoginResponse response = authService.refresh(request);
         return ResponseEntity.ok(response);
     }
 
     @Override
     @PostMapping("/signup")
-    public ResponseEntity<UserSignUpResponseDto> signup(@RequestBody SignUpRequestDto dto) {
-        UserSignUpResponseDto response = authService.signup(dto);
+    public ResponseEntity<UserSignUpResponse> signup(@RequestBody SignUpRequest request) {
+        UserSignUpResponse response = authService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

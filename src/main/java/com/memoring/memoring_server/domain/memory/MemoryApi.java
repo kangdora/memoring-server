@@ -1,7 +1,7 @@
 package com.memoring.memoring_server.domain.memory;
 
-import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponseDto;
-import com.memoring.memoring_server.domain.memory.dto.MemoryDiarySummaryDto;
+import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponse;
+import com.memoring.memoring_server.domain.memory.dto.MemoryDiarySummary;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -19,12 +19,12 @@ public interface MemoryApi {
             @ApiResponse(responseCode = "200", description = "최근 메모리 조회 성공"),
             @ApiResponse(responseCode = "404", description = "메모리를 찾을 수 없음")
     })
-    ResponseEntity<List<MemoryDiarySummaryDto>> getRecentMemories(@PathVariable Long memoryId);
+    ResponseEntity<List<MemoryDiarySummary>> getRecentMemories(@PathVariable Long memoryId);
 
     @Operation(summary = "메모리 전체 조회", description = "해당 메모리에 속한 모든 일기를 최신순으로 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "메모리 조회 성공"),
             @ApiResponse(responseCode = "404", description = "메모리를 찾을 수 없음")
     })
-    ResponseEntity<List<MemoryDiaryResponseDto>> getMemories(@PathVariable Long memoryId);
+    ResponseEntity<List<MemoryDiaryResponse>> getMemories(@PathVariable Long memoryId);
 }

@@ -1,7 +1,7 @@
 package com.memoring.memoring_server.global.storage;
 
-import com.memoring.memoring_server.global.storage.dto.FileDeleteRequestDto;
-import com.memoring.memoring_server.global.storage.dto.FileUploadResponseDto;
+import com.memoring.memoring_server.global.storage.dto.FileDeleteRequest;
+import com.memoring.memoring_server.global.storage.dto.FileUploadResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +22,14 @@ public class StorageController implements StorageApi {
 
     @Override
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<FileUploadResponseDto> uploadFile(@RequestPart("file") MultipartFile file) {
-        FileUploadResponseDto response = storageService.uploadFile(file);
+    public ResponseEntity<FileUploadResponse> uploadFile(@RequestPart("file") MultipartFile file) {
+        FileUploadResponse response = storageService.uploadFile(file);
         return ResponseEntity.ok(response);
     }
 
     @Override
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteFile(@RequestBody FileDeleteRequestDto request){
+    public ResponseEntity<Void> deleteFile(@RequestBody FileDeleteRequest request){
         if (storageService.deleteFile(request)) {
             return ResponseEntity.noContent().build();
         }

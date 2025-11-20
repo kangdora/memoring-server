@@ -1,11 +1,9 @@
 package com.memoring.memoring_server.domain.diary;
 
-import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequestDto;
-import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponseDto;
-import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponseDto;
-import com.memoring.memoring_server.global.external.openai.stt.SttService;
-import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponseDto;
-import com.memoring.memoring_server.global.storage.StorageService;
+import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
+import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
+import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponse;
+import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +19,8 @@ public class DiaryController implements DiaryApi {
 
     @Override
     @PostMapping
-    public ResponseEntity<DiaryCreateResponseDto> createDiary(@RequestBody DiaryCreateRequestDto dto){
-        DiaryCreateResponseDto response = diaryService.createDiary(dto);
+    public ResponseEntity<DiaryCreateResponse> createDiary(@RequestBody DiaryCreateRequest request){
+        DiaryCreateResponse response = diaryService.createDiary(request);
         return ResponseEntity.ok(response);
     }
 
@@ -38,7 +36,7 @@ public class DiaryController implements DiaryApi {
 
     @Override
     @GetMapping("/{diaryId}")
-    public ResponseEntity<DiaryDetailResponseDto> getDiary(@PathVariable Long diaryId) {
+    public ResponseEntity<DiaryDetailResponse> getDiary(@PathVariable Long diaryId) {
         return diaryService.getDiary(diaryId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -55,10 +53,10 @@ public class DiaryController implements DiaryApi {
 
     @Override
     @PostMapping(value = "/transcribe", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<SttTranscriptionResponseDto> transcribeDiaryAudio(
+    public ResponseEntity<SttTranscriptionResponse> transcribeDiaryAudio(
             @RequestPart("file") MultipartFile file
     ) {
-        SttTranscriptionResponseDto response = diaryService.transcribeDiaryAudio(file);
+        SttTranscriptionResponse response = diaryService.transcribeDiaryAudio(file);
         return ResponseEntity.ok(response);
     }
 }

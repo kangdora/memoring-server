@@ -4,7 +4,7 @@ import com.memoring.memoring_server.domain.diary.Emotion;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "일기 생성 요청")
-public record DiaryCreateRequestDto(
+public record DiaryCreateRequest(
         @Schema(description = "연결된 메모리 ID")
         Long memoryId,
 

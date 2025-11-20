@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
 @Schema(description = "댓글 응답")
-public record CommentResponseDto(
+public record CommentResponse(
         @Schema(description = "댓글 ID")
         Long commentId,
 

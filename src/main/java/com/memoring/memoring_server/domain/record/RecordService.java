@@ -2,7 +2,7 @@ package com.memoring.memoring_server.domain.record;
 
 import com.memoring.memoring_server.domain.mission.UserMission;
 import com.memoring.memoring_server.domain.mission.UserMissionRepository;
-import com.memoring.memoring_server.domain.record.dto.RecordResponseDto;
+import com.memoring.memoring_server.domain.record.dto.RecordResponse;
 import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.global.exception.MissionNotFoundException;
 import com.memoring.memoring_server.global.storage.StorageService;
@@ -24,7 +24,7 @@ public class RecordService {
     private final StorageService storageService;
 
     @Transactional
-    public RecordResponseDto saveRecord(MultipartFile file, String username) {
+    public RecordResponse saveRecord(MultipartFile file, String username) {
         UserMission userMission = userMissionRepository.findByUser(userService.getUserByUsername(username))
                 .orElseThrow(MissionNotFoundException::new);
 
@@ -42,13 +42,13 @@ public class RecordService {
                 })
                 .orElseGet(() -> recordRepository.save(Record.create(userMission, s3key, sizeBytes)));
 
-        return new RecordResponseDto(record.getId(), storageService.generatePresignedUrl(record.getS3key()), record.getSizeBytes());
+        return new RecordResponse(record.getId(), storageService.generatePresignedUrl(record.getS3key()), record.getSizeBytes());
     }
 
-    public Optional<RecordResponseDto> getRecord(String username) {
+    public Optional<RecordResponse> getRecord(String username) {
         return userMissionRepository.findByUser(userService.getUserByUsername(username))
                 .flatMap(recordRepository::findByUserMission)
-                .map(record -> new RecordResponseDto(
+                .map(record -> new RecordResponse(
                         record.getId(),
                         storageService.generatePresignedUrl(record.getS3key()),
                         record.getSizeBytes()

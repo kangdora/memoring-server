@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 @Schema(description = "퀴즈 세트 정보")
-public record QuizSetResponseDto(
+public record QuizSetResponse(
         @Schema(description = "퀴즈 세트 ID")
         Long quizSetId,
 
@@ -16,6 +16,6 @@ public record QuizSetResponseDto(
         boolean unlocked,
 
         @Schema(description = "세트에 포함된 퀴즈")
-        List<QuizItemResponseDto> quizzes
+        List<QuizItemResponse> quizzes
 ) {
 }

@@ -1,7 +1,7 @@
 package com.memoring.memoring_server.domain.comment;
 
-import com.memoring.memoring_server.domain.comment.dto.CommentCreateRequestDto;
-import com.memoring.memoring_server.domain.comment.dto.CommentResponseDto;
+import com.memoring.memoring_server.domain.comment.dto.CommentCreateRequest;
+import com.memoring.memoring_server.domain.comment.dto.CommentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +15,8 @@ public class CommentController implements CommentApi {
 
     @Override
     @PostMapping
-    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentCreateRequestDto dto) {
-        return ResponseEntity.ok(commentService.createComment(dto));
+    public ResponseEntity<CommentResponse> createComment(@RequestBody CommentCreateRequest request) {
+        return ResponseEntity.ok(commentService.createComment(request));
     }
 
     @Override

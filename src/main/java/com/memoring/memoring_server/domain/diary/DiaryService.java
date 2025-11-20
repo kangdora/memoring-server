@@ -1,8 +1,8 @@
 package com.memoring.memoring_server.domain.diary;
 
-import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequestDto;
-import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponseDto;
-import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponseDto;
+import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
+import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
+import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponse;
 import com.memoring.memoring_server.domain.memory.Memory;
 import com.memoring.memoring_server.domain.memory.MemoryRepository;
 import com.memoring.memoring_server.domain.mission.Mission;
@@ -14,7 +14,7 @@ import com.memoring.memoring_server.global.exception.MemoryNotFoundException;
 import com.memoring.memoring_server.global.exception.DiaryNotFoundException;
 import com.memoring.memoring_server.global.exception.MissionNotFoundException;
 import com.memoring.memoring_server.global.external.openai.stt.SttService;
-import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponseDto;
+import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponse;
 import com.memoring.memoring_server.global.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,10 +37,10 @@ public class DiaryService {
     private final SttService sttService;
 
     @Transactional
-    public DiaryCreateResponseDto createDiary(DiaryCreateRequestDto dto) {
-        Memory memory = memoryRepository.findById(dto.memoryId())
+    public DiaryCreateResponse createDiary(DiaryCreateRequest request) {
+        Memory memory = memoryRepository.findById(request.memoryId())
                 .orElseThrow(MemoryNotFoundException::new);
-        UserMission userMission = userMissionRepository.findById(dto.missionId())
+        UserMission userMission = userMissionRepository.findById(request.missionId())
                 .orElseThrow(MissionNotFoundException::new);
 
         User user = userMission.getUser();
@@ -50,9 +50,9 @@ public class DiaryService {
 
         Mission mission = Optional.ofNullable(userMission.getMission())
                 .orElseThrow(MissionNotFoundException::new);
-        Diary diary = Diary.create(user, memory, mission, dto.content(), dto.mood());
+        Diary diary = Diary.create(user, memory, mission, request.content(), request.mood());
         Diary savedDiary = diaryRepository.save(diary);
-        return new DiaryCreateResponseDto(savedDiary.getId());
+        return new DiaryCreateResponse(savedDiary.getId());
     }
 
     @Transactional
@@ -69,9 +69,9 @@ public class DiaryService {
                 );
     }
 
-    public Optional<DiaryDetailResponseDto> getDiary(Long diaryId) {
+    public Optional<DiaryDetailResponse> getDiary(Long diaryId) {
         return diaryRepository.findById(diaryId)
-                .map(diary -> new DiaryDetailResponseDto(
+                .map(diary -> new DiaryDetailResponse(
                         Optional.ofNullable(diary.getCreatedAt())
                                 .map(LocalDateTime::toLocalDate)
                                 .orElse(null),
@@ -94,7 +94,7 @@ public class DiaryService {
         return true;
     }
 
-    public SttTranscriptionResponseDto transcribeDiaryAudio(MultipartFile file) {
+    public SttTranscriptionResponse transcribeDiaryAudio(MultipartFile file) {
         return sttService.transcribe(file);
     }
 }
