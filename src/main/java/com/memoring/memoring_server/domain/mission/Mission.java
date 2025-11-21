@@ -17,9 +17,6 @@ public class Mission {
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false, length = 50)
-    private String title;
-
     public static Mission create(String content) {
         Mission mission = new Mission();
         mission.content = content;
