@@ -32,6 +32,10 @@ public class User extends AuditableEntity {
     @Column(nullable = false)
     private Long coin;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role;
+
     public static User create(String nickname, String username, String password) {
         User user = new User();
         user.nickname = nickname;
@@ -40,6 +44,7 @@ public class User extends AuditableEntity {
         user.quizProgress = 0;
         user.quizStroke = 0;
         user.coin = 0L;
+        user.role = Role.USER;
         return user;
     }
 
@@ -49,5 +54,9 @@ public class User extends AuditableEntity {
 
     public void addQuizProgress() {
         this.quizProgress++;
+    }
+
+    public boolean isAdmin() {
+        return Role.ADMIN.equals(this.role);
     }
 }

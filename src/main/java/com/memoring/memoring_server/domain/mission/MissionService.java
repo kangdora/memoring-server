@@ -1,14 +1,14 @@
 package com.memoring.memoring_server.domain.mission;
 
-import com.memoring.memoring_server.domain.mission.dto.MissionOptionResponse;
-import com.memoring.memoring_server.domain.mission.dto.MissionSelectRequest;
-import com.memoring.memoring_server.domain.mission.dto.MissionSelectResponse;
+import com.memoring.memoring_server.domain.mission.dto.*;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
+import com.memoring.memoring_server.global.exception.InvalidAdminRequestException;
 import com.memoring.memoring_server.global.exception.MissionNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -20,6 +20,17 @@ public class MissionService {
     private final MissionRepository missionRepository;
     private final UserMissionRepository userMissionRepository;
     private final UserService userService;
+
+    @Transactional
+    public AdminMissionResponse createMission(AdminMissionCreateRequest request) {
+        if (request == null || !StringUtils.hasText(request.content())) {
+            throw new InvalidAdminRequestException();
+        }
+
+        Mission mission = Mission.create(request.content());
+        Mission saved = missionRepository.save(mission);
+        return new AdminMissionResponse(saved.getId(), saved.getContent());
+    }
 
     public MissionSelectResponse getSelectedMission(String username) {
         UserMission userMission = userMissionRepository.findByUser(userService.getUserByUsername(username))
@@ -56,6 +67,7 @@ public class MissionService {
                 })
                 .orElseGet(() -> UserMission.create(user, mission));
 
+        // 이 부분 반환 꼭 해줘야 할까?
         UserMission saved = userMissionRepository.save(userMission);
         return new MissionSelectResponse(saved.getId(), mission.getContent());
     }

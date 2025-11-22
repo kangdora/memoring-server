@@ -2,21 +2,15 @@ package com.memoring.memoring_server.domain.quiz;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.memoring.memoring_server.domain.quiz.dto.QuizAnswer;
-import com.memoring.memoring_server.domain.quiz.dto.QuizAnswerRequest;
-import com.memoring.memoring_server.domain.quiz.dto.QuizItemResponse;
-import com.memoring.memoring_server.domain.quiz.dto.QuizResultRequest;
-import com.memoring.memoring_server.domain.quiz.dto.QuizResultResponse;
-import com.memoring.memoring_server.domain.quiz.dto.QuizSetResponse;
+import com.memoring.memoring_server.domain.quiz.dto.*;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
-import com.memoring.memoring_server.global.exception.QuizAlreadyTakenTodayException;
-import com.memoring.memoring_server.global.exception.QuizAnswerRequiredException;
-import com.memoring.memoring_server.global.exception.QuizSetLockedException;
-import com.memoring.memoring_server.global.exception.QuizSetNotFoundException;
+import com.memoring.memoring_server.global.exception.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -38,6 +32,26 @@ public class QuizService {
     private final UserService userService;
     private final ObjectMapper objectMapper;
     private final QuizGradingService quizGradingService;
+
+    @Transactional
+    public AdminQuizSetResponse createQuizSet(AdminQuizCreateRequest request) {
+        if (request == null || CollectionUtils.isEmpty(request.quizzes())) {
+            throw new InvalidAdminRequestException();
+        }
+
+        QuizSet quizSet = quizSetRepository.save(QuizSet.create());
+
+        List<Quiz> quizzes = request.quizzes().stream()
+                .map(this::validateAndCreateQuiz)
+                .map(item -> Quiz.create(quizSet, item.content(), item.prompt()))
+                .toList();
+
+        List<Long> quizIds = quizRepository.saveAll(quizzes).stream()
+                .map(Quiz::getId)
+                .toList();
+
+        return new AdminQuizSetResponse(quizSet.getId(), quizIds);
+    }
 
     public List<QuizSetResponse> getQuizSets(String username) {
         User user = userService.getUserByUsername(username);
@@ -147,6 +161,17 @@ public class QuizService {
         return (int) answers.values().stream()
                 .filter(answer -> Boolean.TRUE.equals(answer.isCorrect()))
                 .count();
+    }
+
+    private AdminQuizItemRequest validateAndCreateQuiz(AdminQuizItemRequest request) {
+        if (request == null || !StringUtils.hasText(request.content())) {
+            throw new InvalidAdminRequestException();
+        }
+        String prompt = request.prompt();
+        if (prompt == null) {
+            prompt = "";
+        }
+        return new AdminQuizItemRequest(request.content(), prompt);
     }
 
     private QuizResultResponse toQuizResultResponse(QuizResult quizResult, Map<Integer, QuizAnswer> answers) {

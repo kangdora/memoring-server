@@ -23,10 +23,11 @@ public class Quiz{
     @Column(columnDefinition = "text", nullable = false)
     private String prompt;
 
-    public static Quiz create(QuizSet quizSet, String content) {
+    public static Quiz create(QuizSet quizSet, String content, String prompt) {
         Quiz quiz = new Quiz();
         quiz.quizSet = quizSet;
         quiz.content = content;
+        quiz.prompt = prompt;
         return quiz;
     }
 }
