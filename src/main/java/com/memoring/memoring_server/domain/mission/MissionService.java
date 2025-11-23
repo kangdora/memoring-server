@@ -41,7 +41,7 @@ public class MissionService {
             throw new MissionNotFoundException();
         }
 
-        return new MissionSelectResponse(mission.getId(), mission.getContent());
+        return new MissionSelectResponse(userMission.getId(), mission.getContent());
     }
 
     public List<MissionOptionResponse> getMissionOptions() {
