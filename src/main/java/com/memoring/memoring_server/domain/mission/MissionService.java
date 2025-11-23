@@ -41,7 +41,7 @@ public class MissionService {
             throw new MissionNotFoundException();
         }
 
-        return new MissionSelectResponse(userMission.getId(), mission.getContent());
+        return new MissionSelectResponse(mission.getId(), mission.getContent());
     }
 
     public List<MissionOptionResponse> getMissionOptions() {
@@ -67,9 +67,8 @@ public class MissionService {
                 })
                 .orElseGet(() -> UserMission.create(user, mission));
 
-        // 이 부분 반환 꼭 해줘야 할까?
-        UserMission saved = userMissionRepository.save(userMission);
-        return new MissionSelectResponse(saved.getId(), mission.getContent());
+        userMissionRepository.save(userMission);
+        return new MissionSelectResponse(mission.getId(), mission.getContent());
     }
 
     @Transactional
