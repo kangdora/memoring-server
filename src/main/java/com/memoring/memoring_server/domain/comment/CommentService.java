@@ -23,10 +23,10 @@ public class CommentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CommentResponse createComment(CommentCreateRequest request) {
+    public CommentResponse createComment(CommentCreateRequest request, String username) {
         Diary diary = diaryRepository.findById(request.diaryId())
                 .orElseThrow(DiaryNotFoundException::new);
-        User user = userRepository.findById(request.userId())
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
 
         Comment comment = Comment.create(diary, user, request.content());
@@ -42,9 +42,13 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteComment(Long commentId) {
+    public void deleteComment(Long commentId, String username) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
+
+        if (!comment.getUser().getUsername().equals(username)) {
+            throw new org.springframework.security.access.AccessDeniedException("댓글 삭제 권한이 없습니다.");
+        }
         commentRepository.delete(comment);
     }
 }

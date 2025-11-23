@@ -7,9 +7,6 @@ public record CommentCreateRequest(
         @Schema(description = "댓글을 작성할 일기 ID")
         Long diaryId,
 
-        @Schema(description = "댓글 작성자 ID")
-        Long userId,
-
         @Schema(description = "댓글 내용")
         String content
 ) {

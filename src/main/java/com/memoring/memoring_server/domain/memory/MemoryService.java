@@ -6,9 +6,12 @@ import com.memoring.memoring_server.domain.diary.DiaryImageRepository;
 import com.memoring.memoring_server.domain.diary.DiaryRepository;
 import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryDiarySummary;
+import com.memoring.memoring_server.domain.user.User;
+import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.global.exception.MemoryNotFoundException;
 import com.memoring.memoring_server.global.storage.StorageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,26 +29,31 @@ public class MemoryService {
     private final DiaryRepository diaryRepository;
     private final DiaryImageRepository diaryImageRepository;
     private final StorageService storageService;
+    private final UserService userService;
 
-    public List<MemoryDiarySummary> getRecentMemories(Long memoryId) {
-        validateMemory(memoryId);
+    public List<MemoryDiarySummary> getRecentMemories(Long memoryId, String username) {
+        validateMemory(memoryId, username);
         List<Diary> diaries = diaryRepository.findTop3ByMemoryIdOrderByCreatedAtDesc(memoryId);
         return diaries.stream()
                 .map(this::toSummaryDto)
                 .toList();
     }
 
-    public List<MemoryDiaryResponse> getMemories(Long memoryId) {
-        validateMemory(memoryId);
+    public List<MemoryDiaryResponse> getMemories(Long memoryId, String username) {
+        validateMemory(memoryId, username);
         List<Diary> diaries = diaryRepository.findAllByMemoryIdOrderByCreatedAtDesc(memoryId);
         return diaries.stream()
                 .map(this::toResponseDto)
                 .toList();
     }
 
-    private void validateMemory(Long memoryId) {
-        if (!memoryRepository.existsById(memoryId)) {
-            throw new MemoryNotFoundException();
+    private void validateMemory(Long memoryId, String username) {
+        User user = userService.getUserByUsername(username);
+        Memory memory = memoryRepository.findById(memoryId)
+                .orElseThrow(MemoryNotFoundException::new);
+
+        if (!memory.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("해당 메모리에 대한 권한이 없습니다.");
         }
     }
 

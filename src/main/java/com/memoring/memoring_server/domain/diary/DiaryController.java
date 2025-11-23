@@ -5,6 +5,8 @@ import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscript
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,35 +19,49 @@ public class DiaryController implements DiaryApi {
 
     @Override
     @PostMapping
-    public ResponseEntity<DiaryCreateResponse> createDiary(@RequestBody DiaryCreateRequest request){
-        DiaryCreateResponse response = diaryService.createDiary(request);
+    public ResponseEntity<DiaryCreateResponse> createDiary(
+            @RequestBody DiaryCreateRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ){
+        DiaryCreateResponse response = diaryService.createDiary(request, userDetails.getUsername());
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{diaryId}/image/presigned")
     public ResponseEntity<DiaryImagePresignedUrlResponse> createDiaryImagePresignedUrl(
             @PathVariable Long diaryId,
-            @RequestBody DiaryImagePresignedUrlRequest request
+            @RequestBody DiaryImagePresignedUrlRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        DiaryImagePresignedUrlResponse response = diaryService.createDiaryImagePresignedUrl(diaryId, request);
+        DiaryImagePresignedUrlResponse response = diaryService.createDiaryImagePresignedUrl(
+                diaryId,
+                request,
+                userDetails.getUsername()
+        );
         return ResponseEntity.ok(response);
     }
 
     @Override
     @GetMapping("/{diaryId}")
-    public ResponseEntity<DiaryDetailResponse> getDiary(@PathVariable Long diaryId) {
-        return diaryService.getDiary(diaryId)
+    public ResponseEntity<DiaryDetailResponse> getDiary(
+            @PathVariable Long diaryId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return diaryService.getDiary(diaryId, userDetails.getUsername())
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build()); // 얘 서비스단으로 빼죠
     }
 
     @Override
     @DeleteMapping("/{diaryId}")
-    public ResponseEntity<Void> deleteDiary(@PathVariable Long diaryId) {
-        if (diaryService.deleteDiary(diaryId)) {
+    public ResponseEntity<Void> deleteDiary(
+            @PathVariable Long diaryId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        if (diaryService.deleteDiary(diaryId, userDetails.getUsername())) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.notFound().build(); // 얘 서비스단으로 빼죠
     }
 
     @Override

@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
@@ -19,12 +21,18 @@ public interface MemoryApi {
             @ApiResponse(responseCode = "200", description = "최근 메모리 조회 성공"),
             @ApiResponse(responseCode = "404", description = "메모리를 찾을 수 없음")
     })
-    ResponseEntity<List<MemoryDiarySummary>> getRecentMemories(@PathVariable Long memoryId);
+    ResponseEntity<List<MemoryDiarySummary>> getRecentMemories(
+            @PathVariable Long memoryId,
+            @AuthenticationPrincipal UserDetails userDetails
+    );
 
     @Operation(summary = "메모리 전체 조회", description = "해당 메모리에 속한 모든 일기를 최신순으로 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "메모리 조회 성공"),
             @ApiResponse(responseCode = "404", description = "메모리를 찾을 수 없음")
     })
-    ResponseEntity<List<MemoryDiaryResponse>> getMemories(@PathVariable Long memoryId);
+    ResponseEntity<List<MemoryDiaryResponse>> getMemories(
+            @PathVariable Long memoryId,
+            @AuthenticationPrincipal UserDetails userDetails
+    );
 }

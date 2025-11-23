@@ -24,6 +24,7 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
 
+    @Transactional
     public UserLoginResponse login(LogInRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.username(), request.password())
