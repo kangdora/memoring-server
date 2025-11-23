@@ -1,6 +1,5 @@
 package com.memoring.memoring_server.domain.mission;
 
-import com.memoring.memoring_server.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,7 +13,7 @@ public class Mission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "text", nullable = false)
     private String content;
 
     public static Mission create(String content) {
