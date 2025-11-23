@@ -93,7 +93,7 @@ public class DiaryService {
                         () -> diaryImageRepository.save(DiaryImage.create(key, fileSizeBytes, diary))
                 );
 
-        return new DiaryImagePresignedUrlResponse(uploadUrl, key);
+        return new DiaryImagePresignedUrlResponse(uploadUrl);
     }
 
     public Optional<DiaryDetailResponse> getDiary(Long diaryId, String username) {
