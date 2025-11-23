@@ -15,6 +15,7 @@ import com.memoring.memoring_server.global.exception.MissionNotFoundException;
 import com.memoring.memoring_server.global.external.openai.stt.SttService;
 import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponse;
 import com.memoring.memoring_server.global.storage.StorageService;
+import com.memoring.memoring_server.global.storage.dto.FileDeleteRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -117,15 +118,21 @@ public class DiaryService {
 
     @Transactional
     public boolean deleteDiary(Long diaryId, String username) {  // 예외처리 예정
-        Optional<Diary> diary = diaryRepository.findById(diaryId);
+        Optional<Diary> diaryOptional = diaryRepository.findById(diaryId);
 
-        if (diary.isEmpty()) {
+        if (diaryOptional.isEmpty()) {
             return false;
         }
-        diaryRepository.deleteById(diaryId);
+        Diary diary = diaryOptional.get();
+        validateDiaryOwnership(diary, username);
 
-        validateDiaryOwnership(diary.get(), username);
+        diaryImageRepository.findByDiaryId(diaryId)
+                .ifPresent(image -> {
+                    storageService.deleteFile(new FileDeleteRequest(image.getS3key()));
+                    diaryImageRepository.delete(image);
+                });
 
+        diaryRepository.delete(diary);
         return true;
     }
 
