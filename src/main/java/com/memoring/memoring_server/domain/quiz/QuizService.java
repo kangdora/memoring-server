@@ -6,11 +6,14 @@ import com.memoring.memoring_server.domain.quiz.dto.*;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.global.exception.*;
+import com.memoring.memoring_server.global.external.openai.stt.SttService;
+import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -32,6 +35,7 @@ public class QuizService {
     private final UserService userService;
     private final ObjectMapper objectMapper;
     private final QuizGradingService quizGradingService;
+    private final SttService sttService;
 
     @Transactional
     public AdminQuizSetResponse createQuizSet(AdminQuizCreateRequest request) {
@@ -114,6 +118,10 @@ public class QuizService {
         user.addQuizProgress();
 
         return toQuizResultResponse(quizResult, gradedAnswers);
+    }
+
+    public SttTranscriptionResponse transcribeQuizAudio(MultipartFile file) {
+        return sttService.transcribe(file);
     }
 
     private Map<Integer, QuizAnswerRequest> normalizeAnswers(Map<Integer, QuizAnswerRequest> answers) {

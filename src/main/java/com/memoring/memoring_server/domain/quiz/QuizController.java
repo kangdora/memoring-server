@@ -3,16 +3,14 @@ package com.memoring.memoring_server.domain.quiz;
 import com.memoring.memoring_server.domain.quiz.dto.QuizResultRequest;
 import com.memoring.memoring_server.domain.quiz.dto.QuizResultResponse;
 import com.memoring.memoring_server.domain.quiz.dto.QuizSetResponse;
+import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -41,4 +39,12 @@ public class QuizController implements QuizApi {
         return ResponseEntity.ok(response);
     }
 
+    @Override
+    @PostMapping(value = "/transcribe", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<SttTranscriptionResponse> transcribeQuizAudio(
+            @RequestPart("file") MultipartFile file
+    ) {
+        SttTranscriptionResponse response = quizService.transcribeQuizAudio(file);
+        return ResponseEntity.ok(response);
+    }
 }

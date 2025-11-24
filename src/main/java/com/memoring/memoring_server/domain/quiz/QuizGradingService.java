@@ -17,7 +17,7 @@ import java.util.List;
 @Service
 public class QuizGradingService {
 
-    private static final String SYSTEM_PROMPT = "당신은 주어진 문제와 사용자 답변을 검증하는 채점자입니다. 항상 JSON 형식 {\\\"user_answer\\\":\\\"...\\\",\\\"is_correct\\\":true/false}로만 응답하세요.";
+    private static final String SYSTEM_PROMPT = "당신은 주어진 문제와 사용자 답변을 검증하는 채점자입니다. 항상 JSON 형식 {\\\"user_answer\\\":\\\"...\\\",\\\"is_correct\\\":true/false}로만 응답하세요. user_answer은 whisper을 통한 stt를 활용하여 들어옵니다. 사용자는 65세 이상의 노인으로 발음 및 의미가 상통하는 경우 의미를 해석하여 채점 기준에 맞게 채점해주세요.";
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
@@ -101,8 +101,15 @@ public class QuizGradingService {
         return trimmed;
     }
 
-    private record ChatCompletionRequest(String model, List<ChatMessage> messages) { }
-    private record ChatMessage(String role, String content) { }
-    private record ChatCompletionResponse(List<ChatChoice> choices) { }
-    private record ChatChoice(ChatMessage message) { }
+    private record ChatCompletionRequest(String model, List<ChatMessage> messages) {
+    }
+
+    private record ChatMessage(String role, String content) {
+    }
+
+    private record ChatCompletionResponse(List<ChatChoice> choices) {
+    }
+
+    private record ChatChoice(ChatMessage message) {
+    }
 }
