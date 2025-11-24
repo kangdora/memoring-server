@@ -1,0 +1,12 @@
+package com.memoring.memoring_server.domain.diary;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface DiaryRepository extends JpaRepository<Diary, Long> {
+    List<Diary> findTop3ByMemoryIdOrderByCreatedAtDesc(Long memoryId);
+    List<Diary> findAllByMemoryIdOrderByCreatedAtDesc(Long memoryId);
+}
