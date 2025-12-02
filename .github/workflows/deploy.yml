@@ -31,7 +31,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/libs/*.jar"
+          source: "build/libs/memoring-server-0.0.1-SNAPSHOT.jar"
           target: "/home/ec2-user/app"
           strip_components: 2
 
@@ -45,7 +45,7 @@ jobs:
             cd /home/ec2-user/app
             
             # 기존 프로세스 종료
-            CURRENT_PID=$(pgrep -f 'java.*jar')
+            CURRENT_PID=$(pgrep -f 'memoring-server')
             if [ -n "$CURRENT_PID" ]; then
               echo "Stopping application (PID: $CURRENT_PID)"
               kill -15 $CURRENT_PID
@@ -53,13 +53,13 @@ jobs:
             fi
             
             # 애플리케이션 시작 (환경변수는 EC2에 이미 설정됨)
-            nohup java -jar -Dspring.profiles.active=prod *.jar > app.log 2>&1 &
+            nohup java -jar -Dspring.profiles.active=prod memoring-server-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
             
             echo "Application started with prod profile"
             
             # 프로세스 확인
             sleep 5
-            NEW_PID=$(pgrep -f 'java.*jar')
+            NEW_PID=$(pgrep -f 'memoring-server')
             if [ -n "$NEW_PID" ]; then
               echo "Application is running (PID: $NEW_PID)"
               # 헬스체크
