@@ -79,8 +79,7 @@ jobs:
             # --- 새 버전 실행 ---
             echo "Starting new application..."
 
-            nohup java -jar memoring-server-0.0.1-SNAPSHOT.jar \
-              --spring.profiles.active=prod > app.log 2>&1 &
+            setsid nohup java -jar memoring-server-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod > app.log 2>&1 &
 
             NEW_PID=$!
             echo "$NEW_PID" > app.pid
