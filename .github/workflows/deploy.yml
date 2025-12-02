@@ -29,7 +29,7 @@ jobs:
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
+          username: ${{ secrets.EC2_USERNAME }}   # 예: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "build/libs/memoring-server-0.0.1-SNAPSHOT.jar"
           target: "/home/ubuntu/app"
@@ -42,13 +42,13 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             echo "=== Starting deploy ==="
-            
-            # 안전한 배포 디렉터리 확보
+
+            # 배포 디렉터리 준비
             mkdir -p /home/ubuntu/app
             cd /home/ubuntu/app
-            
+
             echo "Current directory: $(pwd)"
-            
+
             # --- 기존 앱 종료 (PID 파일 기반) ---
             if [ -f app.pid ]; then
               OLD_PID=$(cat app.pid)
@@ -62,49 +62,44 @@ jobs:
             else
               echo "No app.pid found. Skipping stop."
             fi
-            
-            # 혹시 남은 자바 프로세스 있으면 정리 (안전을 위해)
-            REMAINS=$(pgrep -f 'memoring-server-0.0.1-SNAPSHOT.jar' || true)
-            if [ -n "$REMAINS" ]; then
-              echo "Force stopping remaining java process: $REMAINS"
-              kill -9 $REMAINS || true
-            fi
-            
+
+            # 혹시 이전 실행 흔적 정리 (PID 파일만 삭제)
+            rm -f app.pid
+
             # --- 새 버전 실행 ---
             echo "Starting new application..."
-            
+
             nohup java -jar \
               -Dspring.profiles.active=prod \
               memoring-server-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
             
             NEW_PID=$!
             echo "$NEW_PID" > app.pid
-            
+
             echo "Application started with PID: $NEW_PID"
             echo "PID saved to app.pid"
-            
-            # 확인 시간
+
+            # 프로세스 살아있는지 확인
             sleep 6
-            
             if ps -p "$NEW_PID" > /dev/null 2>&1; then
               echo "New application is running (PID: $NEW_PID)"
             else
               echo "Application failed to start!"
               echo "Recent logs:"
-              tail -n 50 app.log
+              tail -n 50 app.log || true
               exit 1
             fi
-            
+
             # 헬스체크
             echo "Running health check..."
             sleep 10
-            
+
             if curl -fs http://localhost:8080/actuator/health; then
               echo "Health check OK!"
             else
               echo "Health check FAILED"
-              tail -n 50 app.log
+              tail -n 50 app.log || true
               exit 1
             fi
-            
+
             echo "=== Deploy finished successfully ==="
