@@ -1,0 +1,72 @@
+name: Deploy Spring Boot to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+
+      - name: Copy jar to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "build/libs/*.jar"
+          target: "/home/ec2-user/app"
+          strip_components: 2
+
+      - name: Deploy and restart application
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ec2-user/app
+            
+            # 기존 프로세스 종료
+            CURRENT_PID=$(pgrep -f 'java.*jar')
+            if [ -n "$CURRENT_PID" ]; then
+              echo "Stopping application (PID: $CURRENT_PID)"
+              kill -15 $CURRENT_PID
+              sleep 5
+            fi
+            
+            # 애플리케이션 시작 (환경변수는 EC2에 이미 설정됨)
+            nohup java -jar -Dspring.profiles.active=prod *.jar > app.log 2>&1 &
+            
+            echo "Application started with prod profile"
+            
+            # 프로세스 확인
+            sleep 5
+            NEW_PID=$(pgrep -f 'java.*jar')
+            if [ -n "$NEW_PID" ]; then
+              echo "Application is running (PID: $NEW_PID)"
+              # 헬스체크
+              sleep 10
+              curl -f http://localhost:8080/actuator/health || echo "Health check failed"
+            else
+              echo "Failed to start application"
+              tail -n 50 app.log
+              exit 1
+            fi
