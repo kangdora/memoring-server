@@ -32,8 +32,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "build/libs/memoring-server-0.0.1-SNAPSHOT.jar"
-          target: "~/app"
-          strip_components: 2
+          target: "/home/ubuntu/app"
 
       - name: Deploy and restart application
         uses: appleboy/ssh-action@master
@@ -42,31 +41,70 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            echo "=== Starting deploy ==="
+            
+            # 안전한 배포 디렉터리 확보
+            mkdir -p /home/ubuntu/app
             cd /home/ubuntu/app
             
-            # 기존 프로세스 종료
-            CURRENT_PID=$(pgrep -f 'memoring-server')
-            if [ -n "$CURRENT_PID" ]; then
-              echo "Stopping application (PID: $CURRENT_PID)"
-              kill -15 $CURRENT_PID
-              sleep 5
+            echo "Current directory: $(pwd)"
+            
+            # --- 기존 앱 종료 (PID 파일 기반) ---
+            if [ -f app.pid ]; then
+              OLD_PID=$(cat app.pid)
+              if ps -p "$OLD_PID" > /dev/null 2>&1; then
+                echo "Stopping previous application (PID: $OLD_PID)"
+                kill -15 "$OLD_PID"
+                sleep 5
+              else
+                echo "app.pid exists but process not running. Cleaning."
+              fi
+            else
+              echo "No app.pid found. Skipping stop."
             fi
             
-            # 애플리케이션 시작 (환경변수는 EC2에 이미 설정됨)
-            nohup java -jar -Dspring.profiles.active=prod memoring-server-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+            # 혹시 남은 자바 프로세스 있으면 정리 (안전을 위해)
+            REMAINS=$(pgrep -f 'memoring-server-0.0.1-SNAPSHOT.jar' || true)
+            if [ -n "$REMAINS" ]; then
+              echo "Force stopping remaining java process: $REMAINS"
+              kill -9 $REMAINS || true
+            fi
             
-            echo "Application started with prod profile"
+            # --- 새 버전 실행 ---
+            echo "Starting new application..."
             
-            # 프로세스 확인
-            sleep 5
-            NEW_PID=$(pgrep -f 'memoring-server')
-            if [ -n "$NEW_PID" ]; then
-              echo "Application is running (PID: $NEW_PID)"
-              # 헬스체크
-              sleep 10
-              curl -f http://localhost:8080/actuator/health || echo "Health check failed"
+            nohup java -jar \
+              -Dspring.profiles.active=prod \
+              memoring-server-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+            
+            NEW_PID=$!
+            echo "$NEW_PID" > app.pid
+            
+            echo "Application started with PID: $NEW_PID"
+            echo "PID saved to app.pid"
+            
+            # 확인 시간
+            sleep 6
+            
+            if ps -p "$NEW_PID" > /dev/null 2>&1; then
+              echo "New application is running (PID: $NEW_PID)"
             else
-              echo "Failed to start application"
+              echo "Application failed to start!"
+              echo "Recent logs:"
               tail -n 50 app.log
               exit 1
             fi
+            
+            # 헬스체크
+            echo "Running health check..."
+            sleep 10
+            
+            if curl -fs http://localhost:8080/actuator/health; then
+              echo "Health check OK!"
+            else
+              echo "Health check FAILED"
+              tail -n 50 app.log
+              exit 1
+            fi
+            
+            echo "=== Deploy finished successfully ==="
