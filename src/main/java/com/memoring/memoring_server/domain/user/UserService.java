@@ -2,6 +2,7 @@ package com.memoring.memoring_server.domain.user;
 
 import com.memoring.memoring_server.domain.user.dto.*;
 import com.memoring.memoring_server.global.exception.DuplicateLoginIdException;
+import com.memoring.memoring_server.global.exception.InvalidUsernameFormatException;
 import com.memoring.memoring_server.global.exception.PasswordMismatchException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,6 +17,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private static final String USERNAME_PATTERN = "^(?!\\d+$)[a-z0-9_-]{4,16}$";
 
     public UserInfoResponse getUserInfo(String username) {
         User user = getUserByUsername(username);
@@ -40,6 +43,10 @@ public class UserService {
     }
 
     private void validateSignupRequest(SignUpRequest request) {
+        if (request.username() == null || !request.username().matches(USERNAME_PATTERN)) {
+            throw new InvalidUsernameFormatException();
+        }
+
         if (!request.password().equals(request.passwordConfirm())) {
             throw new PasswordMismatchException();
         }
