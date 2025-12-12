@@ -44,13 +44,14 @@ public class MissionService {
         return new MissionSelectResponse(mission.getId(), mission.getContent());
     }
 
-    public List<MissionOptionResponse> getMissionOptions() {
-        return missionRepository.findAll().stream()
+    public MissionOptionListResponse getMissionOptions() {
+        return new MissionOptionListResponse(missionRepository.findAll().stream()
                 .map(mission -> new MissionOptionResponse(
                         mission.getId(),
                         mission.getContent()
                 ))
-                .toList();
+                .toList()
+        );
     }
 
     @Transactional

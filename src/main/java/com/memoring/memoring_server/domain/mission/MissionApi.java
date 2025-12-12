@@ -1,5 +1,6 @@
 package com.memoring.memoring_server.domain.mission;
 
+import com.memoring.memoring_server.domain.mission.dto.MissionOptionListResponse;
 import com.memoring.memoring_server.domain.mission.dto.MissionOptionResponse;
 import com.memoring.memoring_server.domain.mission.dto.MissionSelectRequest;
 import com.memoring.memoring_server.domain.mission.dto.MissionSelectResponse;
@@ -27,7 +28,7 @@ public interface MissionApi {
             @ApiResponse(responseCode = "200", description = "미션 목록 조회 성공"),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자")
     })
-    ResponseEntity<List<MissionOptionResponse>> getMissionOptions();
+    ResponseEntity<MissionOptionListResponse> getMissionOptions();
 
     @Operation(
             summary = "사용자 미션 조회",
