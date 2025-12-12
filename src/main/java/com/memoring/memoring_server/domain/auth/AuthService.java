@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AuthService {
 
     private static final String TOKEN_TYPE = "Bearer";
@@ -26,6 +25,7 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
 
+    @Transactional
     public UserLoginResponse login(LogInRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.username(), request.password())
@@ -44,6 +44,7 @@ public class AuthService {
         );
     }
 
+    @Transactional
     public UserLoginResponse refresh(TokenRefreshRequest request) {
         RefreshToken refreshToken = refreshTokenService.getValidRefreshToken(request.refreshToken());
         User user = refreshToken.getUser();
