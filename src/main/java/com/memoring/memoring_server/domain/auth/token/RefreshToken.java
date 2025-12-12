@@ -1,4 +1,4 @@
-package com.memoring.memoring_server.domain.user.token;
+package com.memoring.memoring_server.domain.auth.token;
 
 import com.memoring.memoring_server.domain.common.AuditableEntity;
 import com.memoring.memoring_server.domain.user.User;
