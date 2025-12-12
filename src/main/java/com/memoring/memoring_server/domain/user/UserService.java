@@ -1,6 +1,6 @@
 package com.memoring.memoring_server.domain.user;
 
-import com.memoring.memoring_server.domain.auth.AuthService;
+import com.memoring.memoring_server.domain.auth.AuthSessionService;
 import com.memoring.memoring_server.domain.auth.AuthToken;
 import com.memoring.memoring_server.domain.user.dto.*;
 import com.memoring.memoring_server.global.exception.DuplicateLoginIdException;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class UserService {
 
-    private final AuthService authService;
+    private final AuthSessionService authSessionService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -33,7 +33,7 @@ public class UserService {
         User user = registerUser(request);
         String username = user.getUsername();
 
-        AuthToken tokens = authService.createSession(user, username);
+        AuthToken tokens = authSessionService.createSession(user, username);
 
         return new UserSignUpResponse(
                 "회원가입에 성공했습니다.",

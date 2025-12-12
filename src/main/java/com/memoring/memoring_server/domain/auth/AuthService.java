@@ -5,8 +5,6 @@ import com.memoring.memoring_server.domain.auth.token.RefreshToken;
 import com.memoring.memoring_server.domain.auth.token.RefreshTokenService;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
-import com.memoring.memoring_server.global.config.security.jwt.JwtTokenProvider;
-import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,12 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private static final String TOKEN_TYPE = "Bearer";
-
     private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
+    private final AuthSessionService authSessionService;
 
     @Transactional
     public UserLoginResponse login(LogInRequest request) {
@@ -33,7 +29,7 @@ public class AuthService {
 
         User user = userService.getUserByUsername(authentication.getName());
 
-        AuthToken token = createSession(user, user.getUsername());
+        AuthToken token = authSessionService.createSession(user, user.getUsername());
 
         return new UserLoginResponse(
                 token.accessToken(),
@@ -49,7 +45,7 @@ public class AuthService {
         RefreshToken refreshToken = refreshTokenService.getValidRefreshToken(request.refreshToken());
         User user = refreshToken.getUser();
 
-        AuthToken token = createSession(user, user.getUsername());
+        AuthToken token = authSessionService.createSession(user, user.getUsername());
 
         return new UserLoginResponse(
                 token.accessToken(),
@@ -64,25 +60,5 @@ public class AuthService {
     public void logout(String loginId) {
         User user = userService.getUserByUsername(loginId);
         refreshTokenService.deleteByUser(user);
-    }
-
-    private void saveRefreshToken(User user, String refreshToken) {
-        Instant expiry = Instant.now().plusMillis(jwtTokenProvider.getRefreshTokenValidityInMillis());
-        refreshTokenService.saveRefreshToken(user, refreshToken, expiry);
-    }
-
-    @Transactional
-    public AuthToken createSession(User user, String username) {
-        String accessToken = jwtTokenProvider.generateAccessToken(username);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(username);
-        saveRefreshToken(user, refreshToken);
-
-        return new AuthToken(
-                accessToken,
-                refreshToken,
-                TOKEN_TYPE,
-                jwtTokenProvider.getAccessTokenValidityInMillis(),
-                jwtTokenProvider.getRefreshTokenValidityInMillis()
-        );
     }
 }
