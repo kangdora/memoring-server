@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -44,13 +42,14 @@ public class MissionService {
         return new MissionSelectResponse(mission.getId(), mission.getContent());
     }
 
-    public List<MissionOptionResponse> getMissionOptions() {
-        return missionRepository.findAll().stream()
+    public MissionOptionListResponse getMissionOptions() {
+        return new MissionOptionListResponse(missionRepository.findAll().stream()
                 .map(mission -> new MissionOptionResponse(
                         mission.getId(),
                         mission.getContent()
                 ))
-                .toList();
+                .toList()
+        );
     }
 
     @Transactional

@@ -1,7 +1,6 @@
 package com.memoring.memoring_server.global.storage;
 
 import com.memoring.memoring_server.global.storage.dto.FileDeleteRequest;
-import com.memoring.memoring_server.global.storage.dto.FileUploadResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,7 +10,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -54,14 +52,7 @@ public class StorageService {
         }
     }
 
-    public FileUploadResponse uploadFile(MultipartFile file) {
-        String originalFilename = file.getOriginalFilename();
-        String ext = (originalFilename != null && originalFilename.contains("."))
-                ? originalFilename.substring(originalFilename.lastIndexOf("."))
-                : "";
-
-        String key = "uploads/" + UUID.randomUUID() + ext;
-
+    public void uploadFile(MultipartFile file, String key) {
         try {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucket)
@@ -73,18 +64,15 @@ public class StorageService {
                     putObjectRequest,
                     RequestBody.fromInputStream(file.getInputStream(), file.getSize())
             );
-
-            String presignedUrl = generatePresignedUrl(key);
-            return new FileUploadResponse(originalFilename, presignedUrl, key);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to upload file to S3", e);
         }
     }
 
-    public boolean deleteFile(FileDeleteRequest request) {
+    public void deleteFile(FileDeleteRequest request) {
         String key = request.s3key();
         if (key == null || key.isBlank()) {
-            return false;
+            return;
         }
 
         try {
@@ -96,7 +84,7 @@ public class StorageService {
             s3Client.headObject(headRequest);
         } catch (S3Exception e) {
             if (e.statusCode() == 404) {
-                return false;
+                return;
             }
             throw e;
         }
@@ -107,7 +95,6 @@ public class StorageService {
                 .build();
 
         s3Client.deleteObject(deleteRequest);
-        return true;
     }
 
     public String generatePresignedUrl(String key) {  // s3Key -> presigned URL
@@ -122,25 +109,6 @@ public class StorageService {
                 .build();
 
         return s3Presigner.presignGetObject(presignRequest)
-                .url()
-                .toString();
-    }
-
-    public String generateUploadPresignedUrl(String key, String contentType) {
-        // 클라이언트가 직접 S3에 PUT 요청을 보낼 수 있는 presigned URL을 생성한다.
-        // 업로드 대상 객체의 키와 Content-Type을 미리 고정해 두어 의도한 위치와 타입으로만 업로드되도록 제한한다.
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(key)
-                .contentType(contentType)
-                .build();
-
-        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(PRESIGNED_URL_EXPIRATION_MINUTES))
-                .putObjectRequest(putObjectRequest)
-                .build();
-
-        return s3Presigner.presignPutObject(presignRequest)
                 .url()
                 .toString();
     }

@@ -1,7 +1,10 @@
 package com.memoring.memoring_server.domain.user;
 
+import com.memoring.memoring_server.domain.auth.AuthService;
+import com.memoring.memoring_server.domain.auth.AuthToken;
 import com.memoring.memoring_server.domain.user.dto.*;
 import com.memoring.memoring_server.global.exception.DuplicateLoginIdException;
+import com.memoring.memoring_server.global.exception.InvalidUsernameFormatException;
 import com.memoring.memoring_server.global.exception.PasswordMismatchException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,8 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class UserService {
 
+    private final AuthService authService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private static final String USERNAME_PATTERN = "^(?!\\d+$)[a-z0-9_-]{4,16}$";
 
     public UserInfoResponse getUserInfo(String username) {
         User user = getUserByUsername(username);
@@ -23,7 +29,24 @@ public class UserService {
     }
 
     @Transactional
-    public User registerUser(SignUpRequest request) {
+    public UserSignUpResponse signup(SignUpRequest request){
+        User user = registerUser(request);
+        String username = user.getUsername();
+
+        AuthToken tokens = authService.createSession(user, username);
+
+        return new UserSignUpResponse(
+                "회원가입에 성공했습니다.",
+                tokens.accessToken(),
+                tokens.refreshToken(),
+                tokens.tokenType(),
+                username,
+                tokens.accessTokenExpiresIn(),
+                tokens.refreshTokenExpiresIn()
+        );
+    }
+
+    private User registerUser(SignUpRequest request) {
         validateSignupRequest(request);
         User user = User.create(
                 request.nickname(),
@@ -40,6 +63,10 @@ public class UserService {
     }
 
     private void validateSignupRequest(SignUpRequest request) {
+        if (request.username() == null || !request.username().matches(USERNAME_PATTERN)) {
+            throw new InvalidUsernameFormatException();
+        }
+
         if (!request.password().equals(request.passwordConfirm())) {
             throw new PasswordMismatchException();
         }
@@ -48,5 +75,4 @@ public class UserService {
             throw new DuplicateLoginIdException();
         }
     }
-
 }

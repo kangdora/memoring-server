@@ -18,26 +18,13 @@ public class DiaryController implements DiaryApi {
     private final DiaryService diaryService;
 
     @Override
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DiaryCreateResponse> createDiary(
-            @RequestBody DiaryCreateRequest request,
+            @RequestPart("request") DiaryCreateRequest request,
+            @RequestPart("image") MultipartFile image,
             @AuthenticationPrincipal UserDetails userDetails
     ){
-        DiaryCreateResponse response = diaryService.createDiary(request, userDetails.getUsername());
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/{diaryId}/image/presigned")
-    public ResponseEntity<DiaryImagePresignedUrlResponse> createDiaryImagePresignedUrl(
-            @PathVariable Long diaryId,
-            @RequestBody DiaryImagePresignedUrlRequest request,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        DiaryImagePresignedUrlResponse response = diaryService.createDiaryImagePresignedUrl(
-                diaryId,
-                request,
-                userDetails.getUsername()
-        );
+        DiaryCreateResponse response = diaryService.createDiary(request, image, userDetails.getUsername());
         return ResponseEntity.ok(response);
     }
 

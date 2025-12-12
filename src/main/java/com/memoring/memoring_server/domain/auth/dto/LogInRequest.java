@@ -1,4 +1,4 @@
-package com.memoring.memoring_server.domain.user.dto;
+package com.memoring.memoring_server.domain.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

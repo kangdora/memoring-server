@@ -9,31 +9,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "일기", description = "일기 작성 및 관리 API")
 public interface DiaryApi {
 
-    @Operation(summary = "일기 생성", description = "새로운 일기를 작성")
+    @Operation(summary = "일기 생성", description = "새로운 일기를 작성하고 사진을 업로드")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "일기 생성 성공"),
             @ApiResponse(responseCode = "404", description = "기억 또는 미션을 찾을 수 없음"),
             @ApiResponse(responseCode = "400", description = "기억과 미션의 소유자가 일치하지 않음")
     })
     ResponseEntity<DiaryCreateResponse> createDiary(
-            @RequestBody DiaryCreateRequest request,
-            @AuthenticationPrincipal UserDetails userDetails
-    );
-
-    @Operation(summary = "일기 이미지 업로드 presigned URL 발급", description = "일기 이미지 업로드를 위한 presigned URL을 생성")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "presigned URL 발급 성공"),
-            @ApiResponse(responseCode = "404", description = "일기를 찾을 수 없음")
-    })
-    ResponseEntity<DiaryImagePresignedUrlResponse> createDiaryImagePresignedUrl(
-            Long diaryId,
-            DiaryImagePresignedUrlRequest request,
+            DiaryCreateRequest request,
+            MultipartFile image,
             @AuthenticationPrincipal UserDetails userDetails
     );
 

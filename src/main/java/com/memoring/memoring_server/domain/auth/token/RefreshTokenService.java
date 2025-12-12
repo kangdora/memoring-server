@@ -1,4 +1,4 @@
-package com.memoring.memoring_server.domain.user.token;
+package com.memoring.memoring_server.domain.auth.token;
 
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.global.exception.ExpiredRefreshTokenException;
@@ -15,8 +15,8 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public RefreshToken saveRefreshToken(User user, String token, Instant expiryDate) {
-        return refreshTokenRepository.findByUser(user)
+    public void saveRefreshToken(User user, String token, Instant expiryDate) {
+        refreshTokenRepository.findByUser(user)
                 .map(existing -> {
                     existing.updateToken(token, expiryDate);
                     return existing;

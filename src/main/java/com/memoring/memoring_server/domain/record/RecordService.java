@@ -6,6 +6,7 @@ import com.memoring.memoring_server.domain.record.dto.RecordResponse;
 import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.global.exception.MissionNotFoundException;
 import com.memoring.memoring_server.global.storage.StorageService;
+import com.memoring.memoring_server.global.storage.dto.FileDeleteRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,7 @@ public class RecordService {
 
         Record record = recordRepository.findByUserMission(userMission)
                 .map(existing -> {
+                    storageService.deleteFile(new FileDeleteRequest(existing.getS3key()));
                     existing.update(s3key, sizeBytes);
                     return existing;
                 })

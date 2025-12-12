@@ -1,8 +1,10 @@
-package com.memoring.memoring_server.domain.user;
+package com.memoring.memoring_server.domain.auth;
 
-import com.memoring.memoring_server.domain.user.dto.*;
-import com.memoring.memoring_server.domain.user.token.RefreshToken;
-import com.memoring.memoring_server.domain.user.token.RefreshTokenService;
+import com.memoring.memoring_server.domain.auth.dto.*;
+import com.memoring.memoring_server.domain.auth.token.RefreshToken;
+import com.memoring.memoring_server.domain.auth.token.RefreshTokenService;
+import com.memoring.memoring_server.domain.user.User;
+import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.global.config.security.jwt.JwtTokenProvider;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AuthService {
 
     private static final String TOKEN_TYPE = "Bearer";
@@ -32,33 +33,14 @@ public class AuthService {
 
         User user = userService.getUserByUsername(authentication.getName());
 
-        String accessToken = jwtTokenProvider.generateAccessToken(authentication);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(authentication);
-        saveRefreshToken(user, refreshToken);
+        AuthToken token = createSession(user, user.getUsername());
 
-        return buildTokenResponse(accessToken, refreshToken);
-    }
-
-    @Transactional
-    public UserSignUpResponse signup(SignUpRequest request) {
-        User user = userService.registerUser(request);
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getUsername(), request.password())
-        );
-
-        String accessToken = jwtTokenProvider.generateAccessToken(authentication);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(authentication);
-        saveRefreshToken(user, refreshToken);
-
-        return new UserSignUpResponse(
-                "회원가입에 성공했습니다.",
-                accessToken,
-                refreshToken,
-                TOKEN_TYPE,
-                user.getUsername(),
-                jwtTokenProvider.getAccessTokenValidityInMillis(),
-                jwtTokenProvider.getRefreshTokenValidityInMillis()
+        return new UserLoginResponse(
+                token.accessToken(),
+                token.refreshToken(),
+                token.tokenType(),
+                token.accessTokenExpiresIn(),
+                token.refreshTokenExpiresIn()
         );
     }
 
@@ -67,13 +49,15 @@ public class AuthService {
         RefreshToken refreshToken = refreshTokenService.getValidRefreshToken(request.refreshToken());
         User user = refreshToken.getUser();
 
-        String username = user.getUsername();
+        AuthToken token = createSession(user, user.getUsername());
 
-        String newAccessToken = jwtTokenProvider.generateAccessToken(username);
-        String newRefreshToken = jwtTokenProvider.generateRefreshToken(username);
-        saveRefreshToken(user, newRefreshToken);
-
-        return buildTokenResponse(newAccessToken, newRefreshToken);
+        return new UserLoginResponse(
+                token.accessToken(),
+                token.refreshToken(),
+                token.tokenType(),
+                token.accessTokenExpiresIn(),
+                token.refreshTokenExpiresIn()
+        );
     }
 
     @Transactional
@@ -87,8 +71,13 @@ public class AuthService {
         refreshTokenService.saveRefreshToken(user, refreshToken, expiry);
     }
 
-    private UserLoginResponse buildTokenResponse(String accessToken, String refreshToken) {
-        return new UserLoginResponse(
+    @Transactional
+    public AuthToken createSession(User user, String username) {
+        String accessToken = jwtTokenProvider.generateAccessToken(username);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(username);
+        saveRefreshToken(user, refreshToken);
+
+        return new AuthToken(
                 accessToken,
                 refreshToken,
                 TOKEN_TYPE,
