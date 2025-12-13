@@ -14,18 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "일기", description = "일기 작성 및 관리 API")
 public interface DiaryApi {
 
-    @Operation(summary = "일기 생성", description = "새로운 일기를 작성하고 사진을 업로드")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "일기 생성 성공"),
-            @ApiResponse(responseCode = "404", description = "기억 또는 미션을 찾을 수 없음"),
-            @ApiResponse(responseCode = "400", description = "기억과 미션의 소유자가 일치하지 않음")
-    })
-    ResponseEntity<DiaryCreateResponse> createDiary(
-            DiaryCreateRequest request,
-            MultipartFile image,
-            @AuthenticationPrincipal UserDetails userDetails
-    );
-
     @Operation(summary = "일기 단건 조회", description = "일기 ID로 상세 내용을 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "일기 조회 성공"),

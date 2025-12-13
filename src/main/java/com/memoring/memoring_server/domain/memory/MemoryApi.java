@@ -1,5 +1,7 @@
 package com.memoring.memoring_server.domain.memory;
 
+import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
+import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryDiarySummary;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -33,6 +36,18 @@ public interface MemoryApi {
     })
     ResponseEntity<List<MemoryDiaryResponse>> getMemories(
             @PathVariable Long memoryId,
+            @AuthenticationPrincipal UserDetails userDetails
+    );
+
+    @Operation(summary = "일기 생성", description = "새로운 일기를 작성하고 사진을 업로드")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "일기 생성 성공"),
+            @ApiResponse(responseCode = "404", description = "기억 또는 미션을 찾을 수 없음"),
+            @ApiResponse(responseCode = "400", description = "기억과 미션의 소유자가 일치하지 않음")
+    })
+    ResponseEntity<DiaryCreateResponse> createDiary(
+            DiaryCreateRequest request,
+            MultipartFile image,
             @AuthenticationPrincipal UserDetails userDetails
     );
 }

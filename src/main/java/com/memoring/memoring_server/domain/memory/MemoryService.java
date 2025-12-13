@@ -1,6 +1,8 @@
 package com.memoring.memoring_server.domain.memory;
 
 import com.memoring.memoring_server.domain.diary.*;
+import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
+import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryDiarySummary;
 import com.memoring.memoring_server.domain.user.User;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -48,9 +51,20 @@ public class MemoryService {
                 .toList();
     }
 
-    public Memory getMemoryById(Long id) {
-        return memoryRepository.findById(id)
-                .orElseThrow(MemoryNotFoundException::new);
+    @Transactional
+    public DiaryCreateResponse createDiary(
+            DiaryCreateRequest request,
+            MultipartFile image,
+            String username
+    ) {
+        User user = userService.getUserByUsername(username);
+
+        Memory memory = memoryRepository.findByUser(user)
+                .orElseThrow(() ->
+                        new IllegalStateException("유저가 메모리를 가지고 있지 않습니다.")
+                );
+
+        return diaryService.createDiary(request, image, user, memory);
     }
 
     private void validateMemory(Long memoryId, String username) {

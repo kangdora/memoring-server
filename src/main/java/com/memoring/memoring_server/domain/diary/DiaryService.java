@@ -4,12 +4,10 @@ import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
 import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponse;
 import com.memoring.memoring_server.domain.memory.Memory;
-import com.memoring.memoring_server.domain.memory.MemoryService;
 import com.memoring.memoring_server.domain.mission.Mission;
 import com.memoring.memoring_server.domain.mission.MissionService;
 import com.memoring.memoring_server.domain.mission.UserMission;
 import com.memoring.memoring_server.domain.user.User;
-import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.domain.diary.exception.DiaryNotFoundException;
 import com.memoring.memoring_server.domain.diary.exception.DiaryOwnershipMismatchException;
 import com.memoring.memoring_server.domain.mission.exception.MissionNotFoundException;
@@ -36,25 +34,22 @@ public class DiaryService {
 
     private final DiaryRepository diaryRepository;
     private final DiaryImageRepository diaryImageRepository;
-    private final MemoryService memoryService;
     private final MissionService missionService;
     private final StorageService storageService;
     private final SttService sttService;
-    private final UserService userService;
 
     @Transactional
-    public DiaryCreateResponse createDiary(DiaryCreateRequest request, MultipartFile image, String username) {
+    public DiaryCreateResponse createDiary(
+            DiaryCreateRequest request,
+            MultipartFile image,
+            User user,
+            Memory memory
+    ) {
         if (image == null || image.isEmpty()) {
             throw new IllegalArgumentException("일기 이미지는 필수입니다.");
         }
 
-        Memory memory = memoryService.getMemoryById(request.memoryId());
         UserMission userMission = missionService.getUserMissionById(request.missionId());
-
-        User user = userService.getUserByUsername(username);
-        if (memory.getUser() != null && !memory.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("일기 작성 권한이 없습니다.");
-        }
 
         if (!userMission.getUser().getId().equals(user.getId())) {
             throw new DiaryOwnershipMismatchException();
@@ -62,21 +57,27 @@ public class DiaryService {
 
         Mission mission = Optional.ofNullable(userMission.getMission())
                 .orElseThrow(MissionNotFoundException::new);
+
         Diary diary = Diary.create(user, memory, mission, request.content(), request.mood());
         Diary savedDiary = diaryRepository.save(diary);
 
-        // 이미지를 S3에 업로드하고 DiaryImage 저장
-        String originalFilename = image.getOriginalFilename();
-        String ext = (originalFilename != null && originalFilename.contains("."))
-                ? originalFilename.substring(originalFilename.lastIndexOf("."))
-                : "";
-        String key = "diary/" + savedDiary.getId() + "/" + UUID.randomUUID() + ext;
-
-        storageService.uploadFile(image, key);
-        DiaryImage diaryImage = DiaryImage.create(key, image.getSize(), savedDiary);
-        diaryImageRepository.save(diaryImage);
+        String key = uploadImage(savedDiary, image);
+        diaryImageRepository.save(
+                DiaryImage.create(key, image.getSize(), savedDiary)
+        );
 
         return new DiaryCreateResponse(savedDiary.getId());
+    }
+
+    private String uploadImage(Diary diary, MultipartFile image) {
+        String ext = Optional.ofNullable(image.getOriginalFilename())
+                .filter(name -> name.contains("."))
+                .map(name -> name.substring(name.lastIndexOf(".")))
+                .orElse("");
+
+        String key = "diary/" + diary.getId() + "/" + UUID.randomUUID() + ext;
+        storageService.uploadFile(image, key);
+        return key;
     }
 
 
