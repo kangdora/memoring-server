@@ -19,6 +19,7 @@ public enum ErrorCode {
     INVALID_MISSION_SELECTION(HttpStatus.BAD_REQUEST, "선택한 미션을 찾을 수 없습니다."),
     DIARY_OWNERSHIP_MISMATCH(HttpStatus.BAD_REQUEST, "미션과 메모리의 소유자가 일치하지 않습니다."),
     INVALID_USERNAME_CONFLICT(HttpStatus.BAD_REQUEST, "사용자 ID 형식을 확인해주세요."),
+    INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST,"비밀번호 조건을 확인해 주세요."),
 
     QUIZ_SET_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 퀴즈 세트를 찾을 수 없습니다."),
     QUIZ_SET_LOCKED(HttpStatus.FORBIDDEN, "아직 열리지 않은 퀴즈 세트입니다."),
