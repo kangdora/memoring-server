@@ -19,6 +19,7 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, LogLevel.WARN, "해당 댓글을 찾을 수 없습니다."),
     INVALID_MISSION_SELECTION(HttpStatus.BAD_REQUEST, LogLevel.WARN, "선택한 미션을 찾을 수 없습니다."),
     DIARY_OWNERSHIP_MISMATCH(HttpStatus.BAD_REQUEST, LogLevel.WARN, "미션과 메모리의 소유자가 일치하지 않습니다."),
+    DIARY_IMAGE_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, LogLevel.WARN, "해당 일기의 사진을 찾을 수 없습니다."),
     INVALID_USERNAME_CONFLICT(HttpStatus.BAD_REQUEST, LogLevel.WARN, "사용자 ID 형식을 확인해주세요."),
     INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, LogLevel.WARN, "비밀번호 조건을 확인해 주세요."),
 

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class ExceptionAspect {
 
     @AfterThrowing(
-            pointcut = "within(com.memoring.memoring_server..*)",
+            pointcut = "within(com.memoring.memoring_server.domain..*)",
             throwing = "ex"
     )
     public void logException(Throwable ex) {
