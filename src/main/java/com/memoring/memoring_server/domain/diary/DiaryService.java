@@ -4,15 +4,16 @@ import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
 import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponse;
 import com.memoring.memoring_server.domain.memory.Memory;
-import com.memoring.memoring_server.domain.memory.MemoryRepository;
+import com.memoring.memoring_server.domain.memory.MemoryService;
 import com.memoring.memoring_server.domain.mission.Mission;
+import com.memoring.memoring_server.domain.mission.MissionService;
 import com.memoring.memoring_server.domain.mission.UserMission;
-import com.memoring.memoring_server.domain.mission.UserMissionRepository;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
+import com.memoring.memoring_server.global.exception.DiaryNotFoundException;
 import com.memoring.memoring_server.global.exception.DiaryOwnershipMismatchException;
-import com.memoring.memoring_server.global.exception.MemoryNotFoundException;
 import com.memoring.memoring_server.global.exception.MissionNotFoundException;
+import com.memoring.memoring_server.global.exception.DiaryImageMissingException;
 import com.memoring.memoring_server.global.external.openai.stt.SttService;
 import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponse;
 import com.memoring.memoring_server.global.storage.StorageService;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,9 +35,9 @@ import java.util.UUID;
 public class DiaryService {
 
     private final DiaryRepository diaryRepository;
-    private final MemoryRepository memoryRepository;
-    private final UserMissionRepository userMissionRepository;
     private final DiaryImageRepository diaryImageRepository;
+    private final MemoryService memoryService;
+    private final MissionService missionService;
     private final StorageService storageService;
     private final SttService sttService;
     private final UserService userService;
@@ -46,10 +48,8 @@ public class DiaryService {
             throw new IllegalArgumentException("일기 이미지는 필수입니다.");
         }
 
-        Memory memory = memoryRepository.findById(request.memoryId())
-                .orElseThrow(MemoryNotFoundException::new);
-        UserMission userMission = userMissionRepository.findById(request.missionId())
-                .orElseThrow(MissionNotFoundException::new);
+        Memory memory = memoryService.getMemoryById(request.memoryId());
+        UserMission userMission = missionService.getUserMissionById(request.missionId());
 
         User user = userService.getUserByUsername(username);
         if (memory.getUser() != null && !memory.getUser().getId().equals(user.getId())) {
@@ -118,6 +118,26 @@ public class DiaryService {
 
         diaryRepository.delete(diary);
         return true;
+    }
+
+    public Diary getDiaryById(Long diaryId) {
+        return diaryRepository.findById(diaryId)
+                .orElseThrow(DiaryNotFoundException::new);
+    }
+
+    public List<Diary> getRecentDiaries(Long memoryId, Long userId) {
+        return diaryRepository
+                .findTop3ByMemoryIdAndUserIdOrderByCreatedAtDesc(memoryId, userId);
+    }
+
+    public List<Diary> getDiaries(Long memoryId, Long userId) {
+        return diaryRepository
+                .findAllByMemoryIdAndUserIdOrderByCreatedAtDesc(memoryId, userId);
+    }
+
+    public DiaryImage getDiaryImageByDiaryId(Long diaryId) {
+        return diaryImageRepository.findByDiaryId(diaryId)
+                .orElseThrow(DiaryImageMissingException::new);
     }
 
     public SttTranscriptionResponse transcribeDiaryAudio(MultipartFile file) {

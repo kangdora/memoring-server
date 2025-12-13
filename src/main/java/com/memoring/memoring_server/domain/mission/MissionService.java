@@ -79,4 +79,9 @@ public class MissionService {
 
         userMission.clearMission();
     }
+
+    public UserMission getUserMissionById(Long userMissionId) {
+        return userMissionRepository.findById(userMissionId)
+                .orElseThrow(MissionNotFoundException::new);
+    }
 }
