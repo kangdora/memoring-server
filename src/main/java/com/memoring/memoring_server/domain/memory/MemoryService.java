@@ -5,7 +5,7 @@ import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryDiarySummary;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
-import com.memoring.memoring_server.global.exception.MemoryNotFoundException;
+import com.memoring.memoring_server.domain.memory.exception.MemoryNotFoundException;
 import com.memoring.memoring_server.global.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -23,7 +22,6 @@ import java.util.Optional;
 public class MemoryService {
 
     private final MemoryRepository memoryRepository;
-    private final DiaryImageRepository diaryImageRepository;
     private final DiaryService diaryService;
     private final StorageService storageService;
     private final UserService userService;

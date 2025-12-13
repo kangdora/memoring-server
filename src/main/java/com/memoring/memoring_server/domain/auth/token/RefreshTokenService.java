@@ -1,8 +1,8 @@
 package com.memoring.memoring_server.domain.auth.token;
 
 import com.memoring.memoring_server.domain.user.User;
-import com.memoring.memoring_server.global.exception.ExpiredRefreshTokenException;
-import com.memoring.memoring_server.global.exception.InvalidRefreshTokenException;
+import com.memoring.memoring_server.domain.auth.exception.ExpiredRefreshTokenException;
+import com.memoring.memoring_server.domain.auth.exception.InvalidRefreshTokenException;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

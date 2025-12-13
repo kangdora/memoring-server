@@ -4,7 +4,7 @@ import com.memoring.memoring_server.domain.mission.dto.*;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.global.exception.InvalidAdminRequestException;
-import com.memoring.memoring_server.global.exception.MissionNotFoundException;
+import com.memoring.memoring_server.domain.mission.exception.MissionNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

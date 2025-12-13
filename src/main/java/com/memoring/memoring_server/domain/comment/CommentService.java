@@ -6,7 +6,7 @@ import com.memoring.memoring_server.domain.diary.Diary;
 import com.memoring.memoring_server.domain.diary.DiaryService;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
-import com.memoring.memoring_server.global.exception.CommentNotFoundException;
+import com.memoring.memoring_server.domain.comment.exception.CommentNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
