@@ -101,6 +101,21 @@ public class DiaryService {
                 ));
     }
 
+    public List<Diary> getDiariesByPeriod(
+            Long memoryId,
+            Long userId,
+            LocalDateTime start,
+            LocalDateTime end
+    ) {
+        return diaryRepository
+                .findAllByMemoryIdAndUserIdAndCreatedAtGreaterThanEqualAndCreatedAtLessThanOrderByCreatedAtDesc(
+                        memoryId,
+                        userId,
+                        start,
+                        end
+                );
+    }
+
     @Transactional
     public boolean deleteDiary(Long diaryId, String username) {  // 예외처리 예정
         Optional<Diary> diaryOptional = diaryRepository.findById(diaryId);
