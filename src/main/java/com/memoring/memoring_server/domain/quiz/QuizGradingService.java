@@ -3,7 +3,7 @@ package com.memoring.memoring_server.domain.quiz;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.memoring.memoring_server.domain.quiz.dto.QuizAnswer;
-import com.memoring.memoring_server.global.exception.QuizGradingFailedException;
+import com.memoring.memoring_server.domain.quiz.excpetion.QuizGradingFailedException;
 import com.memoring.memoring_server.global.external.openai.OpenAiProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

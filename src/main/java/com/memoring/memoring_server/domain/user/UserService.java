@@ -3,9 +3,10 @@ package com.memoring.memoring_server.domain.user;
 import com.memoring.memoring_server.domain.auth.AuthSessionService;
 import com.memoring.memoring_server.domain.auth.AuthToken;
 import com.memoring.memoring_server.domain.user.dto.*;
-import com.memoring.memoring_server.global.exception.DuplicateLoginIdException;
-import com.memoring.memoring_server.global.exception.InvalidUsernameFormatException;
-import com.memoring.memoring_server.global.exception.PasswordMismatchException;
+import com.memoring.memoring_server.domain.user.exception.DuplicateLoginIdException;
+import com.memoring.memoring_server.domain.user.exception.InvalidPasswordFormatException;
+import com.memoring.memoring_server.domain.user.exception.InvalidUsernameFormatException;
+import com.memoring.memoring_server.domain.user.exception.PasswordMismatchException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     private static final String USERNAME_PATTERN = "^(?!\\d+$)[a-z0-9_-]{4,16}$";
+    private static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,20}$";
 
     public UserInfoResponse getUserInfo(String username) {
         User user = getUserByUsername(username);
@@ -65,6 +67,10 @@ public class UserService {
     private void validateSignupRequest(SignUpRequest request) {
         if (request.username() == null || !request.username().matches(USERNAME_PATTERN)) {
             throw new InvalidUsernameFormatException();
+        }
+
+        if (request.password() == null || !request.password().matches(PASSWORD_PATTERN)){
+            throw new InvalidPasswordFormatException();
         }
 
         if (!request.password().equals(request.passwordConfirm())) {

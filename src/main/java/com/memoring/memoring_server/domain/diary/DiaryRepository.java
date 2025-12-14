@@ -7,6 +7,21 @@ import java.util.List;
 
 @Repository
 public interface DiaryRepository extends JpaRepository<Diary, Long> {
-    List<Diary> findTop3ByMemoryIdOrderByCreatedAtDesc(Long memoryId);
-    List<Diary> findAllByMemoryIdOrderByCreatedAtDesc(Long memoryId);
+
+    List<Diary> findTop3ByMemoryIdAndUserIdOrderByCreatedAtDesc(
+            Long memoryId,
+            Long userId
+    );
+
+    List<Diary> findAllByMemoryIdAndUserIdOrderByCreatedAtDesc(
+            Long memoryId,
+            Long userId
+    );
+
+    List<Diary> findAllByMemoryIdAndUserIdAndCreatedAtGreaterThanEqualAndCreatedAtLessThanOrderByCreatedAtDesc(
+            Long memoryId,
+            Long userId,
+            java.time.LocalDateTime start,
+            java.time.LocalDateTime end
+    );
 }

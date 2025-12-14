@@ -4,7 +4,7 @@ import com.memoring.memoring_server.domain.mission.UserMission;
 import com.memoring.memoring_server.domain.mission.UserMissionRepository;
 import com.memoring.memoring_server.domain.record.dto.RecordResponse;
 import com.memoring.memoring_server.domain.user.UserService;
-import com.memoring.memoring_server.global.exception.MissionNotFoundException;
+import com.memoring.memoring_server.domain.mission.exception.MissionNotFoundException;
 import com.memoring.memoring_server.global.storage.StorageService;
 import com.memoring.memoring_server.global.storage.dto.FileDeleteRequest;
 import lombok.RequiredArgsConstructor;

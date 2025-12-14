@@ -18,17 +18,6 @@ public class DiaryController implements DiaryApi {
     private final DiaryService diaryService;
 
     @Override
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<DiaryCreateResponse> createDiary(
-            @RequestPart("request") DiaryCreateRequest request,
-            @RequestPart("image") MultipartFile image,
-            @AuthenticationPrincipal UserDetails userDetails
-    ){
-        DiaryCreateResponse response = diaryService.createDiary(request, image, userDetails.getUsername());
-        return ResponseEntity.ok(response);
-    }
-
-    @Override
     @GetMapping("/{diaryId}")
     public ResponseEntity<DiaryDetailResponse> getDiary(
             @PathVariable Long diaryId,
