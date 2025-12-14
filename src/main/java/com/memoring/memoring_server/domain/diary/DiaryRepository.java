@@ -17,4 +17,11 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
             Long memoryId,
             Long userId
     );
+
+    List<Diary> findAllByMemoryIdAndUserIdAndCreatedAtGreaterThanEqualAndCreatedAtLessThanOrderByCreatedAtDesc(
+            Long memoryId,
+            Long userId,
+            java.time.LocalDateTime start,
+            java.time.LocalDateTime end
+    );
 }

@@ -4,7 +4,9 @@ import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryDiarySummary;
+import com.memoring.memoring_server.domain.memory.dto.MemoryWeeklyResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -37,6 +40,18 @@ public class MemoryController implements MemoryApi {
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         return ResponseEntity.ok(memoryService.getMemories(memoryId, userDetails.getUsername()));
+    }
+
+    @Override
+    @GetMapping("/{memoryId}/weeks")
+    public ResponseEntity<MemoryWeeklyResponse> getWeeklyMemories(
+            @PathVariable Long memoryId,
+            @RequestParam(name = "date", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate date,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(memoryService.getWeeklyMemories(memoryId, userDetails.getUsername(), date));
     }
 
     @Override
