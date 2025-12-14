@@ -66,7 +66,7 @@ jobs:
               if ps -p "$OLD_PID" > /dev/null 2>&1; then
                 echo "Stopping previous application (PID: $OLD_PID)"
                 kill -15 "$OLD_PID"
-                sleep 5
+                sleep 10
               else
                 echo "app.pid exists but process not running. Cleaning."
               fi
@@ -100,14 +100,21 @@ jobs:
 
             # 헬스체크
             echo "Running health check..."
-            sleep 10
-
+  
+            HEALTH_OK=false
+            
+            for i in {1..15}; do
             if curl -fs http://localhost:8080/actuator/health; then
-              echo "Health check OK!"
-            else
-              echo "Health check FAILED"
-              tail -n 50 app.log || true
-              exit 1
+            echo "Health check OK!"
+            HEALTH_OK=true
+            break
             fi
-
-            echo "=== Deploy finished successfully ==="
+            echo "Waiting for server... ($i)"
+            sleep 3
+            done
+            
+            if [ "$HEALTH_OK" != "true" ]; then
+            echo "Health check FAILED"
+            tail -n 50 app.log || true
+            exit 1
+            fi
