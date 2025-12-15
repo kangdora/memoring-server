@@ -23,26 +23,6 @@ import java.util.List;
 @Tag(name = "메모리", description = "메모리 조회 API")
 public interface MemoryApi {
 
-    @Operation(summary = "최근 메모리 조회", description = "최근 일기 3개의 요약 정보를 조회")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "최근 메모리 조회 성공"),
-            @ApiResponse(responseCode = "404", description = "메모리를 찾을 수 없음")
-    })
-    ResponseEntity<List<MemoryDiarySummary>> getRecentMemories(
-            @PathVariable Long memoryId,
-            @AuthenticationPrincipal UserDetails userDetails
-    );
-
-    @Operation(summary = "메모리 전체 조회", description = "해당 메모리에 속한 모든 일기를 최신순으로 조회")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "메모리 조회 성공"),
-            @ApiResponse(responseCode = "404", description = "메모리를 찾을 수 없음")
-    })
-    ResponseEntity<List<MemoryDiaryResponse>> getMemories(
-            @PathVariable Long memoryId,
-            @AuthenticationPrincipal UserDetails userDetails
-    );
-
     @Operation(summary = "메모리 주차별 조회", description = "해당 주차의 일기와 썸네일을 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "주차별 메모리 조회 성공"),

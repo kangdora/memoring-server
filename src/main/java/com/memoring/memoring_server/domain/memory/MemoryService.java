@@ -34,17 +34,6 @@ public class MemoryService {
     private final StorageService storageService;
     private final UserService userService;
 
-    public List<MemoryDiarySummary> getRecentMemories(Long memoryId, String username) {
-        User user = userService.getUserByUsername(username);
-        validateMemory(memoryId, username);
-
-        List<Diary> diaries = diaryService.getRecentDiaries(memoryId, user.getId());
-
-        return diaries.stream()
-                .map(this::toSummaryDto)
-                .toList();
-    }
-
     public MemoryWeeklyResponse getWeeklyMemories(
             Long memoryId,
             String username,
@@ -84,17 +73,6 @@ public class MemoryService {
         );
     }
 
-    public List<MemoryDiaryResponse> getMemories(Long memoryId, String username) {
-        User user = userService.getUserByUsername(username);
-        validateMemory(memoryId, username);
-
-        List<Diary> diaries = diaryService.getDiaries(memoryId, user.getId());
-
-        return diaries.stream()
-                .map(this::toResponseDto)
-                .toList();
-    }
-
     @Transactional
     public DiaryCreateResponse createDiary(
             DiaryCreateRequest request,
@@ -119,15 +97,6 @@ public class MemoryService {
         if (!memory.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException("해당 메모리에 대한 권한이 없습니다.");
         }
-    }
-
-    private MemoryDiarySummary toSummaryDto(Diary diary) {
-        return new MemoryDiarySummary(
-                diary.getId(),
-                extractDate(diary.getCreatedAt()),
-                getImageUrl(diary.getId()),
-                diary.getContent()
-        );
     }
 
     private MemoryDiaryResponse toResponseDto(Diary diary) {

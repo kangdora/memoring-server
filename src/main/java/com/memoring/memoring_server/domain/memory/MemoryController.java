@@ -25,24 +25,6 @@ public class MemoryController implements MemoryApi {
     private final MemoryService memoryService;
 
     @Override
-    @GetMapping("/{memoryId}/recent")
-    public ResponseEntity<List<MemoryDiarySummary>> getRecentMemories(
-            @PathVariable Long memoryId,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        return ResponseEntity.ok(memoryService.getRecentMemories(memoryId, userDetails.getUsername()));
-    }
-
-    @Override
-    @GetMapping("/{memoryId}")
-    public ResponseEntity<List<MemoryDiaryResponse>> getMemories(
-            @PathVariable Long memoryId,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        return ResponseEntity.ok(memoryService.getMemories(memoryId, userDetails.getUsername()));
-    }
-
-    @Override
     @GetMapping("/{memoryId}/weeks")
     public ResponseEntity<MemoryWeeklyResponse> getWeeklyMemories(
             @PathVariable Long memoryId,
