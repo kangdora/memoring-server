@@ -4,7 +4,6 @@ import com.memoring.memoring_server.domain.diary.*;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponse;
-import com.memoring.memoring_server.domain.memory.dto.MemoryDiarySummary;
 import com.memoring.memoring_server.domain.memory.dto.MemoryWeeklyResponse;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
@@ -82,9 +81,7 @@ public class MemoryService {
         User user = userService.getUserByUsername(username);
 
         Memory memory = memoryRepository.findByUser(user)
-                .orElseThrow(() ->
-                        new IllegalStateException("유저가 메모리를 가지고 있지 않습니다.")
-                );
+                .orElseThrow(MemoryNotFoundException::new);
 
         return diaryService.createDiary(request, image, user, memory);
     }

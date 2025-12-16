@@ -3,10 +3,7 @@ package com.memoring.memoring_server.domain.quiz;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.memoring.memoring_server.domain.quiz.dto.*;
-import com.memoring.memoring_server.domain.quiz.excpetion.QuizAlreadyTakenTodayException;
-import com.memoring.memoring_server.domain.quiz.excpetion.QuizAnswerRequiredException;
-import com.memoring.memoring_server.domain.quiz.excpetion.QuizSetLockedException;
-import com.memoring.memoring_server.domain.quiz.excpetion.QuizSetNotFoundException;
+import com.memoring.memoring_server.domain.quiz.excpetion.*;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.global.exception.*;
@@ -208,7 +205,7 @@ public class QuizService {
         try {
             return objectMapper.writeValueAsString(answers);
         } catch (JsonProcessingException e) {
-            throw new IllegalStateException("퀴즈 답안을 저장하는 중 오류가 발생했습니다.", e);
+            throw new QuizAnswerSerializationException(e);
         }
     }
 }

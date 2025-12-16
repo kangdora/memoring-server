@@ -175,8 +175,8 @@ class MemoryServiceTest {
         given(memoryRepository.findByUser(user)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> memoryService.createDiary(request, image, "tester"))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("사용자가 메모리를 가지고 있지 않습니다.");
+                .isInstanceOf(MemoryNotFoundException.class)
+                .hasMessage("해당 메모리를 찾을 수 없습니다.");
     }
 
     @DisplayName("사용자가 보유한 메모리로 일기를 생성한다")

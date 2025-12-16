@@ -1,6 +1,7 @@
 package com.memoring.memoring_server.global.storage;
 
 import com.memoring.memoring_server.global.storage.dto.FileDeleteRequest;
+import com.memoring.memoring_server.global.storage.exception.FileUploadFailedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,7 @@ public class StorageService {
 
             return key;
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to upload record to S3", e);
+            throw new FileUploadFailedException(e);
         }
     }
 
@@ -65,7 +66,7 @@ public class StorageService {
                     RequestBody.fromInputStream(file.getInputStream(), file.getSize())
             );
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to upload file to S3", e);
+            throw new FileUploadFailedException(e);
         }
     }
 

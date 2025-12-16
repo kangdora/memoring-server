@@ -13,7 +13,7 @@ public enum ErrorCode {
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, LogLevel.WARN, "유효하지 않은 리프레시 토큰입니다."),
     EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, LogLevel.WARN, "만료된 리프레시 토큰입니다."),
 
-    MEMORY_NOT_FOUND(HttpStatus.NOT_FOUND, LogLevel.WARN, "해당 기억을 찾을 수 없습니다."),
+    MEMORY_NOT_FOUND(HttpStatus.NOT_FOUND, LogLevel.WARN, "해당 메모리를 찾을 수 없습니다."),
     MISSION_NOT_FOUND(HttpStatus.NOT_FOUND, LogLevel.WARN, "해당 미션을 찾을 수 없습니다."),
     DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, LogLevel.WARN, "해당 일기를 찾을 수 없습니다."),
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, LogLevel.WARN, "해당 댓글을 찾을 수 없습니다."),
@@ -33,6 +33,11 @@ public enum ErrorCode {
 
     FILE_NAME_EMPTY(HttpStatus.BAD_REQUEST, LogLevel.WARN, "파일 이름이 비어 있습니다."),
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, LogLevel.WARN, "해당 파일을 찾을 수 없습니다."),
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, LogLevel.ERROR, "파일 업로드에 실패했습니다."),
+
+    OPENAI_API_KEY_NOT_CONFIGURED(HttpStatus.INTERNAL_SERVER_ERROR, LogLevel.ERROR, "OpenAI API 키가 설정되어 있지 않습니다."),
+    OPENAI_WHISPER_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, LogLevel.ERROR, "OpenAI Whisper 요청 처리에 실패했습니다."),
+    QUIZ_ANSWER_SERIALIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, LogLevel.ERROR, "퀴즈 답안을 저장하는 중 오류가 발생했습니다."),
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, LogLevel.ERROR, "서버 에러가 발생하였습니다.");
 

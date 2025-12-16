@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.memoring.memoring_server.domain.quiz.dto.QuizAnswer;
 import com.memoring.memoring_server.domain.quiz.excpetion.QuizGradingFailedException;
+import com.memoring.memoring_server.global.exception.OpenAiApiKeyMissingException;
 import com.memoring.memoring_server.global.external.openai.OpenAiProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -27,7 +28,7 @@ public class QuizGradingService {
         this.openAiProperties = openAiProperties;
         this.objectMapper = objectMapper;
         if (!StringUtils.hasText(openAiProperties.getApiKey())) {
-            throw new IllegalStateException("OpenAI API key must be configured (openai.api-key)");
+            throw new OpenAiApiKeyMissingException();
         }
         this.webClient = webClientBuilder
                 .baseUrl(openAiProperties.getBaseUrl())
