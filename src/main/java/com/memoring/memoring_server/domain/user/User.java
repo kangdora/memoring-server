@@ -36,7 +36,10 @@ public class User extends AuditableEntity {
     @Column(nullable = false, length = 20)
     private Role role;
 
-    public static User create(String nickname, String username, String password) {
+    @Embedded
+    private Address address;
+
+    public static User create(String nickname, String username, String password, Role role, Address address) {
         User user = new User();
         user.nickname = nickname;
         user.username = username;
@@ -44,7 +47,8 @@ public class User extends AuditableEntity {
         user.quizProgress = 0;
         user.quizStroke = 0;
         user.coin = 0L;
-        user.role = Role.USER;
+        user.role = role;
+        user.address = address;
         return user;
     }
 

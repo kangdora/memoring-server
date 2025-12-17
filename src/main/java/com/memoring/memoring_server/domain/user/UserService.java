@@ -53,7 +53,9 @@ public class UserService {
         User user = User.create(
                 request.nickname(),
                 request.username(),
-                passwordEncoder.encode(request.password())
+                passwordEncoder.encode(request.password()),
+                request.role(),
+                request.address()
         );
 
         return userRepository.save(user);
