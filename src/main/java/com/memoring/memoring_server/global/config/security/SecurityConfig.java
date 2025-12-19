@@ -46,7 +46,7 @@ public class SecurityConfig {
                                 "/api/v1/user/refresh",
                                 "/actuator/health"
                         ).permitAll()
-                        .requestMatchers("api/v1/caregiver/**").hasRole("CAREGIVER")
+                        .requestMatchers("/api/v1/caregiver/**").hasRole("CAREGIVER")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
