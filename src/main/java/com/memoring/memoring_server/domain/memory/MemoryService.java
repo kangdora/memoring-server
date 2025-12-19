@@ -1,10 +1,12 @@
 package com.memoring.memoring_server.domain.memory;
 
+import com.memoring.memoring_server.domain.caregiver.CareRelationService;
 import com.memoring.memoring_server.domain.diary.*;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryWeeklyResponse;
+import com.memoring.memoring_server.domain.user.Role;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.domain.memory.exception.MemoryNotFoundException;
@@ -32,6 +34,7 @@ public class MemoryService {
     private final DiaryService diaryService;
     private final StorageService storageService;
     private final UserService userService;
+    private final CareRelationService careRelationService;
 
     public MemoryWeeklyResponse getWeeklyMemories(
             Long memoryId,
@@ -39,7 +42,7 @@ public class MemoryService {
             LocalDate date
     ) {
         User user = userService.getUserByUsername(username);
-        validateMemory(memoryId, username);
+        validateMemory(memoryId, user);
 
         LocalDate weekStartDate = getWeekStart(date);
         LocalDateTime startDateTime = weekStartDate
@@ -80,20 +83,30 @@ public class MemoryService {
     ) {
         User user = userService.getUserByUsername(username);
 
+        if (Role.CAREGIVER.equals(user.getRole())) {
+            throw new AccessDeniedException("케어기버는 일기를 생성할 수 없습니다.");
+        }
+
         Memory memory = memoryRepository.findByUser(user)
                 .orElseThrow(MemoryNotFoundException::new);
 
         return diaryService.createDiary(request, image, user, memory);
     }
 
-    private void validateMemory(Long memoryId, String username) {
-        User user = userService.getUserByUsername(username);
+    private void validateMemory(Long memoryId, User user) {
         Memory memory = memoryRepository.findById(memoryId)
                 .orElseThrow(MemoryNotFoundException::new);
 
-        if (!memory.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("해당 메모리에 대한 권한이 없습니다.");
+        if (memory.getUser().getId().equals(user.getId())) {
+            return;
         }
+
+        if (Role.CAREGIVER.equals(user.getRole())
+                && careRelationService.isConnected(memory.getUser().getId(), user.getId())) {
+            return;
+        }
+
+        throw new AccessDeniedException("해당 메모리에 대한 권한이 없습니다.");
     }
 
     private MemoryDiaryResponse toResponseDto(Diary diary) {
