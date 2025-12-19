@@ -46,6 +46,7 @@ public enum ErrorCode {
     CAREGIVER_ROLE_REQUIRED(HttpStatus.FORBIDDEN, LogLevel.WARN, "케어기버만 사용할 수 있는 기능입니다."),
 
     QUIZ_RESULT_NOT_FOUND(HttpStatus.NOT_FOUND, LogLevel.WARN, "퀴즈 결과를 찾을 수 없습니다."),
+    INVALID_SIGNUP_TYPE(HttpStatus.BAD_REQUEST, LogLevel.WARN, "보안 정책 위반 요청입니다."),
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, LogLevel.ERROR, "서버 에러가 발생하였습니다.");
 
