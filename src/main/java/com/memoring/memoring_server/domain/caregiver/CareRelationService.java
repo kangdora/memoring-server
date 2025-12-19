@@ -1,6 +1,8 @@
 package com.memoring.memoring_server.domain.caregiver;
 
 import com.memoring.memoring_server.domain.caregiver.dto.CareInviteAcceptRequest;
+import com.memoring.memoring_server.domain.caregiver.dto.CaregiverPatientListResponse;
+import com.memoring.memoring_server.domain.caregiver.dto.CaregiverPatientResponse;
 import com.memoring.memoring_server.domain.user.Role;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
@@ -11,6 +13,8 @@ import org.springframework.util.StringUtils;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +42,7 @@ public class CareRelationService {
         }
 
         User caregiver = userService.getUserByUsername(caregiverUsername);
+        validateCaregiverRole(caregiver);
 
         User patient = userService.getUserById(invite.getPatientId());
 
@@ -59,5 +64,28 @@ public class CareRelationService {
 
         CareRelation relation = CareRelation.create(patient.getId(), caregiver.getId(), now);
         careRelationRepository.save(relation);
+    }
+
+    private void validateCaregiverRole(User caregiver) {
+        if (!Role.CAREGIVER.equals(caregiver.getRole())) {
+            throw new IllegalArgumentException("이건 관계 확인용");
+        }
+    }
+
+    public CaregiverPatientListResponse getPatients(String caregiverUsername) {
+        User caregiver = userService.getUserByUsername(caregiverUsername);
+        validateCaregiverRole(caregiver);
+
+        List<CareRelation> relations = careRelationRepository.findByCaregiverId(caregiver.getId());
+
+        return new CaregiverPatientListResponse(relations
+                .stream()
+                .map(relation -> userService.getUserById(relation.getPatientId()))
+                .map(CaregiverPatientResponse::from)
+                .collect(Collectors.toList()));
+    }
+
+    public boolean isConnected(Long patientId, Long caregiverId) {
+        return careRelationRepository.existsByPatientIdAndCaregiverId(patientId, caregiverId);
     }
 }
