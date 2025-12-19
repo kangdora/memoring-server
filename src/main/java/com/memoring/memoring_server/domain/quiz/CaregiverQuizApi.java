@@ -12,8 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(
-        name = "케어기버 퀴즈",
-        description = "케어기버 전용 퀴즈 결과 조회 API"
+        name = "보호자 퀴즈",
+        description = "보호자 전용 퀴즈 결과 조회 API"
 )
 public interface CaregiverQuizApi {
 
@@ -25,7 +25,7 @@ public interface CaregiverQuizApi {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "퀴즈 결과 조회 성공"),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
-            @ApiResponse(responseCode = "403", description = "케어기버 권한이 필요하거나 연결되지 않은 환자"),
+            @ApiResponse(responseCode = "403", description = "보호자 권한이 필요하거나 연결되지 않은 환자"),
             @ApiResponse(responseCode = "404", description = "퀴즈 결과를 찾을 수 없음")
     })
     ResponseEntity<QuizResultResponse> getQuizResult(
