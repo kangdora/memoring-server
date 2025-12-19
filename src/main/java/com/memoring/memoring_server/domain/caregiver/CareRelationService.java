@@ -3,6 +3,7 @@ package com.memoring.memoring_server.domain.caregiver;
 import com.memoring.memoring_server.domain.caregiver.dto.CareInviteAcceptRequest;
 import com.memoring.memoring_server.domain.caregiver.dto.CaregiverPatientListResponse;
 import com.memoring.memoring_server.domain.caregiver.dto.CaregiverPatientResponse;
+import com.memoring.memoring_server.domain.caregiver.exception.*;
 import com.memoring.memoring_server.domain.user.Role;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
@@ -29,16 +30,16 @@ public class CareRelationService {
     @Transactional
     public void acceptCareInvite(CareInviteAcceptRequest request, String caregiverUsername) {
         if (request == null || !StringUtils.hasText(request.inviteCode())) {
-            throw new IllegalArgumentException("이건 잘못된 요청 배드 리퀘스트");
+            throw new CareInviteNotFoundException();
         }
 
         CareInvite invite = careInviteRepository.findByCode(request.inviteCode())
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(CareInviteNotFoundException::new);
 
         LocalDateTime now = LocalDateTime.now(clock);
 
         if (now.isAfter(invite.getExpiredAt())) {
-            throw new IllegalArgumentException("이미 시간 지남 수고욤 ㅎㅎ");
+            throw new CaregiverInviteAlreadyExpiredException();
         }
 
         User caregiver = userService.getUserByUsername(caregiverUsername);
@@ -47,19 +48,15 @@ public class CareRelationService {
         User patient = userService.getUserById(invite.getPatientId());
 
         if (careRelationRepository.existsByPatientIdAndCaregiverId(patient.getId(), caregiver.getId())) {
-            throw new IllegalArgumentException("이건 이미 연결되어있는거.");
+            throw new CareRelationAlreadyExistsException();
         }
 
         if (Role.CAREGIVER.equals(patient.getRole())) {
-            throw new IllegalArgumentException("이건 관계 확인용");
-        }
-
-        if (Role.USER.equals(caregiver.getRole())) {
-            throw new IllegalArgumentException("이건 관계 확인용");
+            throw new CareRelationAccessDeniedException();
         }
 
         if (patient.getId().equals(caregiver.getId())) {
-            throw new IllegalArgumentException("이거도 관계 확인 badrequest 처리 ㄱ");
+            throw new CareRelationAccessDeniedException();
         }
 
         CareRelation relation = CareRelation.create(patient.getId(), caregiver.getId(), now);
@@ -68,7 +65,7 @@ public class CareRelationService {
 
     private void validateCaregiverRole(User caregiver) {
         if (!Role.CAREGIVER.equals(caregiver.getRole())) {
-            throw new IllegalArgumentException("이건 관계 확인용");
+            throw new CaregiverRoleRequiredException();
         }
     }
 
@@ -83,6 +80,14 @@ public class CareRelationService {
                 .map(relation -> userService.getUserById(relation.getPatientId()))
                 .map(CaregiverPatientResponse::from)
                 .collect(Collectors.toList()));
+    }
+
+    public void validateCaregiverAccessToUser(String caregiverUsername, Long patientId) {
+        User caregiver = userService.getUserByUsername(caregiverUsername);
+        validateCaregiverRole(caregiver);
+        if (!careRelationRepository.existsByPatientIdAndCaregiverId(patientId, caregiver.getId())) {
+            throw new CareRelationAccessDeniedException();
+        }
     }
 
     public boolean isConnected(Long patientId, Long caregiverId) {

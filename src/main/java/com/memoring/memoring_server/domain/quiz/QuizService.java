@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.memoring.memoring_server.domain.caregiver.CareRelationService;
+import com.memoring.memoring_server.domain.caregiver.exception.CareRelationAccessDeniedException;
 import com.memoring.memoring_server.domain.quiz.dto.*;
 import com.memoring.memoring_server.domain.quiz.excpetion.*;
 import com.memoring.memoring_server.domain.user.Role;
@@ -133,7 +134,7 @@ public class QuizService {
     public QuizResultResponse getQuizResult(Long quizResultId, String username) {
         User caregiver = userService.getUserByUsername(username);
         if (!Role.CAREGIVER.equals(caregiver.getRole())) {
-            throw new IllegalArgumentException("");
+            throw new CareRelationAccessDeniedException();
         }
 
         QuizResult quizResult = quizResultRepository.findById(quizResultId)
@@ -141,7 +142,7 @@ public class QuizService {
 
         Long patientId = quizResult.getUser().getId();
         if (!careRelationService.isConnected(patientId, caregiver.getId())) {
-            throw new IllegalArgumentException("");
+            throw new CareRelationAccessDeniedException();
         }
 
         Map<Integer, QuizAnswer> answers = readAnswers(quizResult.getAnswer());

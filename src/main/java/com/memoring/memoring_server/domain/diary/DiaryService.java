@@ -146,16 +146,6 @@ public class DiaryService {
                 .orElseThrow(DiaryNotFoundException::new);
     }
 
-    public List<Diary> getRecentDiaries(Long memoryId, Long userId) {
-        return diaryRepository
-                .findTop3ByMemoryIdAndUserIdOrderByCreatedAtDesc(memoryId, userId);
-    }
-
-    public List<Diary> getDiaries(Long memoryId, Long userId) {
-        return diaryRepository
-                .findAllByMemoryIdAndUserIdOrderByCreatedAtDesc(memoryId, userId);
-    }
-
     public DiaryImage getDiaryImageByDiaryId(Long diaryId) {
         return diaryImageRepository.findByDiaryId(diaryId)
                 .orElseThrow(DiaryImageMissingException::new);

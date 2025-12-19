@@ -84,7 +84,7 @@ public class MemoryService {
         User user = userService.getUserByUsername(username);
 
         if (Role.CAREGIVER.equals(user.getRole())) {
-            throw new AccessDeniedException("케어기버는 일기를 생성할 수 없습니다.");
+            throw new AccessDeniedException("보호자는 일기를 생성할 수 없습니다.");
         }
 
         Memory memory = memoryRepository.findByUser(user)

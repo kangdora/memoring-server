@@ -4,7 +4,7 @@ import com.memoring.memoring_server.domain.user.Role;
 import com.memoring.memoring_server.domain.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "케어 대상자 정보")
+@Schema(description = "환자 정보")
 public record CaregiverPatientResponse(
         @Schema(description = "환자 ID")
         Long patientId,
