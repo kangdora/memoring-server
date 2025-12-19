@@ -8,7 +8,11 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "care_relations")
+@Table(name = "care_relations",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"patient_id", "caregiver_id"}
+        )
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CareRelation {
@@ -18,15 +22,15 @@ public class CareRelation {
     private Long id;
 
     @Column(nullable = false)
-    private String patientId;
+    private Long patientId;
 
     @Column(nullable = false)
-    private String caregiverId;
+    private Long caregiverId;
 
     @Column(nullable = false)
     private LocalDateTime connectedAt;
 
-    public static CareRelation create(String patientId, String caregiverId, LocalDateTime connectedAt) {
+    public static CareRelation create(Long patientId, Long caregiverId, LocalDateTime connectedAt) {
         CareRelation careRelation = new CareRelation();
         careRelation.patientId = patientId;
         careRelation.caregiverId = caregiverId;

@@ -66,6 +66,11 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
     }
 
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+    }
+
     private void validateSignupRequest(SignUpRequest request) {
         if (request.username() == null || !request.username().matches(USERNAME_PATTERN)) {
             throw new InvalidUsernameFormatException();
