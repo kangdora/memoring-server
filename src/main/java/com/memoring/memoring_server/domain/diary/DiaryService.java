@@ -1,5 +1,6 @@
 package com.memoring.memoring_server.domain.diary;
 
+import com.memoring.memoring_server.domain.caregiver.CareRelationService;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
 import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponse;
@@ -7,11 +8,13 @@ import com.memoring.memoring_server.domain.memory.Memory;
 import com.memoring.memoring_server.domain.mission.Mission;
 import com.memoring.memoring_server.domain.mission.MissionService;
 import com.memoring.memoring_server.domain.mission.UserMission;
+import com.memoring.memoring_server.domain.user.Role;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.diary.exception.DiaryNotFoundException;
 import com.memoring.memoring_server.domain.diary.exception.DiaryOwnershipMismatchException;
 import com.memoring.memoring_server.domain.mission.exception.MissionNotFoundException;
 import com.memoring.memoring_server.domain.diary.exception.DiaryImageMissingException;
+import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.global.external.openai.stt.SttService;
 import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponse;
 import com.memoring.memoring_server.global.storage.StorageService;
@@ -37,6 +40,8 @@ public class DiaryService {
     private final MissionService missionService;
     private final StorageService storageService;
     private final SttService sttService;
+    private final CareRelationService careRelationService;
+    private final UserService userService;
 
     @Transactional
     public DiaryCreateResponse createDiary(
@@ -161,8 +166,16 @@ public class DiaryService {
     }
 
     private void validateDiaryOwnership(Diary diary, String username) {
-        if (!diary.getUser().getUsername().equals(username)) {
-            throw new AccessDeniedException("해당 일기에 대한 권한이 없습니다.");
+        if (diary.getUser().getUsername().equals(username)) {
+            return;
         }
+
+        User requester = userService.getUserByUsername(username);
+        if (Role.CAREGIVER.equals(requester.getRole())
+                && careRelationService.isConnected(diary.getUser().getId(), requester.getId())) {
+            return;
+        }
+
+        throw new AccessDeniedException("해당 일기에 대한 권한이 없습니다.");
     }
 }
