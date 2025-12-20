@@ -8,7 +8,6 @@ import com.memoring.memoring_server.domain.memory.Memory;
 import com.memoring.memoring_server.domain.mission.Mission;
 import com.memoring.memoring_server.domain.mission.MissionService;
 import com.memoring.memoring_server.domain.mission.UserMission;
-import com.memoring.memoring_server.domain.user.Role;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.diary.exception.DiaryNotFoundException;
 import com.memoring.memoring_server.domain.diary.exception.DiaryOwnershipMismatchException;
@@ -161,7 +160,7 @@ public class DiaryService {
         }
 
         User requester = userService.getUserByUsername(username);
-        if (Role.CAREGIVER.equals(requester.getRole())
+        if (requester.isCaregiver()
                 && careRelationService.isConnected(diary.getUser().getId(), requester.getId())) {
             return;
         }

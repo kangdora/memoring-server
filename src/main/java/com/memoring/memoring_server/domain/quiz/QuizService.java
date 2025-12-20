@@ -7,7 +7,6 @@ import com.memoring.memoring_server.domain.caregiver.CareRelationService;
 import com.memoring.memoring_server.domain.caregiver.exception.CareRelationAccessDeniedException;
 import com.memoring.memoring_server.domain.quiz.dto.*;
 import com.memoring.memoring_server.domain.quiz.excpetion.*;
-import com.memoring.memoring_server.domain.user.Role;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.global.exception.*;
@@ -133,7 +132,7 @@ public class QuizService {
 
     public QuizResultResponse getQuizResult(Long quizResultId, String username) {
         User caregiver = userService.getUserByUsername(username);
-        if (!Role.CAREGIVER.equals(caregiver.getRole())) {
+        if (!caregiver.isCaregiver()) {
             throw new CareRelationAccessDeniedException();
         }
 

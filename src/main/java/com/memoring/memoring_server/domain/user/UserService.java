@@ -48,16 +48,14 @@ public class UserService {
     private User registerUser(SignUpRequest request) {
         validateSignupRequest(request);
 
-        Role role = Role.USER;
-        if (request.signupType() == SignupType.CAREGIVER) {
-            role = Role.CAREGIVER;
-        }
+        UserType userType = request.signupType();
 
         User user = User.create(
                 request.nickname(),
                 request.username(),
                 passwordEncoder.encode(request.password()),
-                role,
+                Role.USER,
+                userType,
                 request.address()
         );
 
@@ -95,8 +93,8 @@ public class UserService {
             throw new InvalidSignupTypeException();
         }
 
-        if (request.signupType() != SignupType.PATIENT
-                && request.signupType() != SignupType.CAREGIVER) {
+        if (request.signupType() != UserType.PATIENT
+                && request.signupType() != UserType.CAREGIVER) {
             throw new InvalidSignupTypeException();
         }
     }

@@ -4,7 +4,6 @@ import com.memoring.memoring_server.domain.caregiver.dto.CareInviteAcceptRequest
 import com.memoring.memoring_server.domain.caregiver.dto.CaregiverPatientListResponse;
 import com.memoring.memoring_server.domain.caregiver.dto.CaregiverPatientResponse;
 import com.memoring.memoring_server.domain.caregiver.exception.*;
-import com.memoring.memoring_server.domain.user.Role;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +50,7 @@ public class CareRelationService {
             throw new CareRelationAlreadyExistsException();
         }
 
-        if (Role.CAREGIVER.equals(patient.getRole())) {
+        if (patient.isCaregiver()) {
             throw new CareRelationAccessDeniedException();
         }
 
@@ -64,7 +63,7 @@ public class CareRelationService {
     }
 
     private void validateCaregiverRole(User caregiver) {
-        if (!Role.CAREGIVER.equals(caregiver.getRole())) {
+        if (!caregiver.isCaregiver()) {
             throw new CaregiverRoleRequiredException();
         }
     }

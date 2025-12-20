@@ -6,7 +6,6 @@ import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryWeeklyResponse;
-import com.memoring.memoring_server.domain.user.Role;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.domain.memory.exception.MemoryNotFoundException;
@@ -83,7 +82,7 @@ public class MemoryService {
     ) {
         User user = userService.getUserByUsername(username);
 
-        if (Role.CAREGIVER.equals(user.getRole())) {
+        if (user.isCaregiver()) {
             throw new AccessDeniedException("보호자는 일기를 생성할 수 없습니다.");
         }
 
@@ -101,7 +100,7 @@ public class MemoryService {
             return;
         }
 
-        if (Role.CAREGIVER.equals(user.getRole())
+        if (user.isCaregiver()
                 && careRelationService.isConnected(memory.getUser().getId(), user.getId())) {
             return;
         }

@@ -5,7 +5,6 @@ import com.memoring.memoring_server.domain.comment.dto.CommentCreateRequest;
 import com.memoring.memoring_server.domain.comment.dto.CommentResponse;
 import com.memoring.memoring_server.domain.diary.Diary;
 import com.memoring.memoring_server.domain.diary.DiaryService;
-import com.memoring.memoring_server.domain.user.Role;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.domain.comment.exception.CommentNotFoundException;
@@ -59,7 +58,7 @@ public class CommentService {
             return;
         }
 
-        if (Role.CAREGIVER.equals(user.getRole())
+        if (user.isCaregiver()
                 && careRelationService.isConnected(diary.getUser().getId(), user.getId())) {
             return;
         }
