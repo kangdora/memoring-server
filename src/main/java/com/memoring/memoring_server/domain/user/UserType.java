@@ -1,7 +1,6 @@
 package com.memoring.memoring_server.domain.user;
 
-public enum Role {
-    USER,
-    ADMIN,
+public enum UserType {
+    PATIENT,
     CAREGIVER
 }

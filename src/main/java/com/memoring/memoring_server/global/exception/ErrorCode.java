@@ -39,6 +39,15 @@ public enum ErrorCode {
     OPENAI_WHISPER_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, LogLevel.ERROR, "OpenAI Whisper 요청 처리에 실패했습니다."),
     QUIZ_ANSWER_SERIALIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, LogLevel.ERROR, "퀴즈 답안을 저장하는 중 오류가 발생했습니다."),
 
+    CARE_INVITE_NOT_FOUND(HttpStatus.NOT_FOUND, LogLevel.WARN, "초대 코드를 찾을 수 없습니다."),
+    CARE_INVITE_ALREADY_EXPIRED(HttpStatus.CONFLICT, LogLevel.WARN, "이미 만료된 초대 코드입니다."),
+    CARE_RELATION_ALREADY_EXISTS(HttpStatus.CONFLICT, LogLevel.WARN, "이미 연결된 사용자입니다."),
+    CARE_RELATION_ACCESS_DENIED(HttpStatus.FORBIDDEN, LogLevel.WARN, "연결된 사용자만 접근할 수 있습니다."),
+    CAREGIVER_ROLE_REQUIRED(HttpStatus.FORBIDDEN, LogLevel.WARN, "케어기버만 사용할 수 있는 기능입니다."),
+
+    QUIZ_RESULT_NOT_FOUND(HttpStatus.NOT_FOUND, LogLevel.WARN, "퀴즈 결과를 찾을 수 없습니다."),
+    INVALID_SIGNUP_TYPE(HttpStatus.BAD_REQUEST, LogLevel.WARN, "보안 정책 위반 요청입니다."),
+
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, LogLevel.ERROR, "서버 에러가 발생하였습니다.");
 
     private final HttpStatus status;

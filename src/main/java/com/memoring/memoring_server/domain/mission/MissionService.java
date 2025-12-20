@@ -1,5 +1,7 @@
 package com.memoring.memoring_server.domain.mission;
 
+import com.memoring.memoring_server.domain.caregiver.dto.CaregiverMissionStatusResponse;
+import com.memoring.memoring_server.domain.diary.DiaryRepository;
 import com.memoring.memoring_server.domain.mission.dto.*;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
@@ -18,6 +20,7 @@ public class MissionService {
     private final MissionRepository missionRepository;
     private final UserMissionRepository userMissionRepository;
     private final UserService userService;
+    private final DiaryRepository diaryRepository;
 
     @Transactional
     public AdminMissionResponse createMission(AdminMissionCreateRequest request) {
@@ -78,6 +81,29 @@ public class MissionService {
                 .orElseThrow(MissionNotFoundException::new);
 
         userMission.clearMission();
+    }
+
+    public CaregiverMissionStatusResponse getMissionStatus(Long userId) {
+        User user = userService.getUserById(userId);
+
+        UserMission userMission = userMissionRepository.findByUser(user)
+                .orElseThrow(MissionNotFoundException::new);
+
+        // TODO: 이게 맞나?
+        if (userMission.getMission() == null) {
+            return new CaregiverMissionStatusResponse(null, null, false);
+        }
+
+        boolean completed = diaryRepository.existsByUserIdAndMissionId(
+                user.getId(),
+                userMission.getMission().getId()
+        );
+
+        return new CaregiverMissionStatusResponse(
+                userMission.getMission().getId(),
+                userMission.getMission().getContent(),
+                completed
+        );
     }
 
     public UserMission getUserMissionById(Long userMissionId) {

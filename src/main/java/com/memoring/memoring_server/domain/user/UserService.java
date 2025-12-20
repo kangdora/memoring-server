@@ -3,10 +3,7 @@ package com.memoring.memoring_server.domain.user;
 import com.memoring.memoring_server.domain.auth.AuthSessionService;
 import com.memoring.memoring_server.domain.auth.AuthToken;
 import com.memoring.memoring_server.domain.user.dto.*;
-import com.memoring.memoring_server.domain.user.exception.DuplicateLoginIdException;
-import com.memoring.memoring_server.domain.user.exception.InvalidPasswordFormatException;
-import com.memoring.memoring_server.domain.user.exception.InvalidUsernameFormatException;
-import com.memoring.memoring_server.domain.user.exception.PasswordMismatchException;
+import com.memoring.memoring_server.domain.user.exception.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,10 +47,16 @@ public class UserService {
 
     private User registerUser(SignUpRequest request) {
         validateSignupRequest(request);
+
+        UserType userType = request.signupType();
+
         User user = User.create(
                 request.nickname(),
                 request.username(),
-                passwordEncoder.encode(request.password())
+                passwordEncoder.encode(request.password()),
+                Role.USER,
+                userType,
+                request.address()
         );
 
         return userRepository.save(user);
@@ -61,6 +64,11 @@ public class UserService {
 
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+    }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
     }
 
@@ -79,6 +87,15 @@ public class UserService {
 
         if (userRepository.existsByUsername(request.username())) {
             throw new DuplicateLoginIdException();
+        }
+
+        if (request.signupType() == null) {
+            throw new InvalidSignupTypeException();
+        }
+
+        if (request.signupType() != UserType.PATIENT
+                && request.signupType() != UserType.CAREGIVER) {
+            throw new InvalidSignupTypeException();
         }
     }
 }

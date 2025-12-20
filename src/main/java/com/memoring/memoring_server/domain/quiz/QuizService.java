@@ -1,7 +1,10 @@
 package com.memoring.memoring_server.domain.quiz;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.memoring.memoring_server.domain.caregiver.CareRelationService;
+import com.memoring.memoring_server.domain.caregiver.exception.CareRelationAccessDeniedException;
 import com.memoring.memoring_server.domain.quiz.dto.*;
 import com.memoring.memoring_server.domain.quiz.excpetion.*;
 import com.memoring.memoring_server.domain.user.User;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 public class QuizService {
 
     private static final Long QUIZ_REWARD_COINS = 10L;
+    private static final TypeReference<LinkedHashMap<Integer, QuizAnswer>> ANSWER_MAP_TYPE = new TypeReference<>() {};
     private final QuizSetRepository quizSetRepository;
     private final QuizRepository quizRepository;
     private final QuizResultRepository quizResultRepository;
@@ -37,6 +41,7 @@ public class QuizService {
     private final ObjectMapper objectMapper;
     private final QuizGradingService quizGradingService;
     private final SttService sttService;
+    private final CareRelationService careRelationService;
 
     @Transactional
     public AdminQuizSetResponse createQuizSet(AdminQuizCreateRequest request) {
@@ -125,6 +130,31 @@ public class QuizService {
         return sttService.transcribe(file);
     }
 
+    public QuizResultResponse getQuizResult(Long quizResultId, String username) {
+        User caregiver = userService.getUserByUsername(username);
+        if (!caregiver.isCaregiver()) {
+            throw new CareRelationAccessDeniedException();
+        }
+
+        QuizResult quizResult = quizResultRepository.findById(quizResultId)
+                .orElseThrow(QuizResultNotFoundException::new);
+
+        Long patientId = quizResult.getUser().getId();
+        if (!careRelationService.isConnected(patientId, caregiver.getId())) {
+            throw new CareRelationAccessDeniedException();
+        }
+
+        Map<Integer, QuizAnswer> answers = readAnswers(quizResult.getAnswer());
+
+        return new QuizResultResponse(
+                quizResult.getId(),
+                quizResult.getQuizSet().getId(),
+                quizResult.getTakenAt(),
+                Collections.unmodifiableMap(new LinkedHashMap<>(answers)),
+                quizResult.getAnswerCount()
+        );
+    }
+
     private Map<Integer, QuizAnswerRequest> normalizeAnswers(Map<Integer, QuizAnswerRequest> answers) {
         if (answers == null || answers.isEmpty()) {
             throw new QuizAnswerRequiredException();
@@ -204,6 +234,14 @@ public class QuizService {
     private String writeAnswers(Map<Integer, QuizAnswer> answers) {
         try {
             return objectMapper.writeValueAsString(answers);
+        } catch (JsonProcessingException e) {
+            throw new QuizAnswerSerializationException(e);
+        }
+    }
+
+    private Map<Integer, QuizAnswer> readAnswers(String answers) {
+        try {
+            return objectMapper.readValue(answers, ANSWER_MAP_TYPE);
         } catch (JsonProcessingException e) {
             throw new QuizAnswerSerializationException(e);
         }

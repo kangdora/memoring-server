@@ -1,9 +1,12 @@
 package com.memoring.memoring_server.domain.user.dto;
 
+import com.memoring.memoring_server.domain.user.Address;
+import com.memoring.memoring_server.domain.user.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "회원가입 요청")
 public record SignUpRequest(
+
         @Schema(description = "사용자 닉네임")
         String nickname,
 
@@ -14,5 +17,11 @@ public record SignUpRequest(
         String password,
 
         @Schema(description = "비밀번호 확인")
-        String passwordConfirm
+        String passwordConfirm,
+
+        @Schema(description = "역할")
+        UserType signupType,
+
+        @Schema(description = "주소")
+        Address address
 ) {}
