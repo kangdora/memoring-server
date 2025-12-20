@@ -24,4 +24,6 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
             java.time.LocalDateTime start,
             java.time.LocalDateTime end
     );
+
+    boolean existsByUserIdAndMissionId(Long userId, Long missionId);
 }

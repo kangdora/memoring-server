@@ -1,5 +1,7 @@
 package com.memoring.memoring_server.global.external.openai.stt;
 
+import com.memoring.memoring_server.global.exception.OpenAiApiKeyMissingException;
+import com.memoring.memoring_server.global.exception.OpenAiWhisperException;
 import com.memoring.memoring_server.global.external.openai.OpenAiProperties;
 import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponse;
 import org.springframework.http.HttpHeaders;
@@ -23,7 +25,7 @@ public class SttService {
     public SttService(OpenAiProperties openAiProperties, WebClient.Builder webClientBuilder) {
         this.openAiProperties = openAiProperties;
         if (!StringUtils.hasText(openAiProperties.getApiKey())) {
-            throw new IllegalStateException("OpenAI API key must be configured (openai.api-key)");
+            throw new OpenAiApiKeyMissingException();
         }
         this.webClient = webClientBuilder
                 .baseUrl(openAiProperties.getBaseUrl())
@@ -47,12 +49,12 @@ public class SttService {
                     .block();
 
             if (response == null || !StringUtils.hasText(response.text())) {
-                throw new IllegalStateException("Empty response from OpenAI Whisper");
+                throw new OpenAiWhisperException();
             }
 
             return new SttTranscriptionResponse(response.text());
         } catch (WebClientResponseException e) {
-            throw new IllegalStateException("Failed to call OpenAI Whisper API: " + e.getResponseBodyAsString(), e);
+            throw new OpenAiWhisperException(e);
         }
     }
 

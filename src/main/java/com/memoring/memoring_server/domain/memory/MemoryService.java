@@ -1,10 +1,10 @@
 package com.memoring.memoring_server.domain.memory;
 
+import com.memoring.memoring_server.domain.caregiver.CareRelationService;
 import com.memoring.memoring_server.domain.diary.*;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
 import com.memoring.memoring_server.domain.memory.dto.MemoryDiaryResponse;
-import com.memoring.memoring_server.domain.memory.dto.MemoryDiarySummary;
 import com.memoring.memoring_server.domain.memory.dto.MemoryWeeklyResponse;
 import com.memoring.memoring_server.domain.user.User;
 import com.memoring.memoring_server.domain.user.UserService;
@@ -33,17 +33,7 @@ public class MemoryService {
     private final DiaryService diaryService;
     private final StorageService storageService;
     private final UserService userService;
-
-    public List<MemoryDiarySummary> getRecentMemories(Long memoryId, String username) {
-        User user = userService.getUserByUsername(username);
-        validateMemory(memoryId, username);
-
-        List<Diary> diaries = diaryService.getRecentDiaries(memoryId, user.getId());
-
-        return diaries.stream()
-                .map(this::toSummaryDto)
-                .toList();
-    }
+    private final CareRelationService careRelationService;
 
     public MemoryWeeklyResponse getWeeklyMemories(
             Long memoryId,
@@ -51,7 +41,7 @@ public class MemoryService {
             LocalDate date
     ) {
         User user = userService.getUserByUsername(username);
-        validateMemory(memoryId, username);
+        validateMemory(memoryId, user);
 
         LocalDate weekStartDate = getWeekStart(date);
         LocalDateTime startDateTime = weekStartDate
@@ -84,17 +74,6 @@ public class MemoryService {
         );
     }
 
-    public List<MemoryDiaryResponse> getMemories(Long memoryId, String username) {
-        User user = userService.getUserByUsername(username);
-        validateMemory(memoryId, username);
-
-        List<Diary> diaries = diaryService.getDiaries(memoryId, user.getId());
-
-        return diaries.stream()
-                .map(this::toResponseDto)
-                .toList();
-    }
-
     @Transactional
     public DiaryCreateResponse createDiary(
             DiaryCreateRequest request,
@@ -103,31 +82,30 @@ public class MemoryService {
     ) {
         User user = userService.getUserByUsername(username);
 
+        if (user.isCaregiver()) {
+            throw new AccessDeniedException("보호자는 일기를 생성할 수 없습니다.");
+        }
+
         Memory memory = memoryRepository.findByUser(user)
-                .orElseThrow(() ->
-                        new IllegalStateException("유저가 메모리를 가지고 있지 않습니다.")
-                );
+                .orElseThrow(MemoryNotFoundException::new);
 
         return diaryService.createDiary(request, image, user, memory);
     }
 
-    private void validateMemory(Long memoryId, String username) {
-        User user = userService.getUserByUsername(username);
+    private void validateMemory(Long memoryId, User user) {
         Memory memory = memoryRepository.findById(memoryId)
                 .orElseThrow(MemoryNotFoundException::new);
 
-        if (!memory.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("해당 메모리에 대한 권한이 없습니다.");
+        if (memory.getUser().getId().equals(user.getId())) {
+            return;
         }
-    }
 
-    private MemoryDiarySummary toSummaryDto(Diary diary) {
-        return new MemoryDiarySummary(
-                diary.getId(),
-                extractDate(diary.getCreatedAt()),
-                getImageUrl(diary.getId()),
-                diary.getContent()
-        );
+        if (user.isCaregiver()
+                && careRelationService.isConnected(memory.getUser().getId(), user.getId())) {
+            return;
+        }
+
+        throw new AccessDeniedException("해당 메모리에 대한 권한이 없습니다.");
     }
 
     private MemoryDiaryResponse toResponseDto(Diary diary) {

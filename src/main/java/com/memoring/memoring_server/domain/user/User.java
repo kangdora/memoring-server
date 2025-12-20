@@ -36,7 +36,14 @@ public class User extends AuditableEntity {
     @Column(nullable = false, length = 20)
     private Role role;
 
-    public static User create(String nickname, String username, String password) {
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private UserType userType;
+
+    @Embedded
+    private Address address;
+
+    public static User create(String nickname, String username, String password, Role role, UserType userType, Address address) {
         User user = new User();
         user.nickname = nickname;
         user.username = username;
@@ -44,7 +51,9 @@ public class User extends AuditableEntity {
         user.quizProgress = 0;
         user.quizStroke = 0;
         user.coin = 0L;
-        user.role = Role.USER;
+        user.role = role;
+        user.userType = userType;
+        user.address = address;
         return user;
     }
 
@@ -58,5 +67,9 @@ public class User extends AuditableEntity {
 
     public boolean isAdmin() {
         return Role.ADMIN.equals(this.role);
+    }
+
+    public boolean isCaregiver() {
+        return UserType.CAREGIVER.equals(this.userType);
     }
 }

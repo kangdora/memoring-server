@@ -41,9 +41,9 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
-                                "/api/v1/user/login",
-                                "/api/v1/user/signup",
-                                "/api/v1/user/refresh",
+                                "/api/v1/sessions",
+                                "/api/v1/users",
+                                "/api/v1/tokens/refresh",
                                 "/actuator/health"
                         ).permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")

@@ -1,5 +1,6 @@
 package com.memoring.memoring_server.domain.diary;
 
+import com.memoring.memoring_server.domain.caregiver.CareRelationService;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateRequest;
 import com.memoring.memoring_server.domain.diary.dto.DiaryCreateResponse;
 import com.memoring.memoring_server.domain.diary.dto.DiaryDetailResponse;
@@ -12,6 +13,7 @@ import com.memoring.memoring_server.domain.diary.exception.DiaryNotFoundExceptio
 import com.memoring.memoring_server.domain.diary.exception.DiaryOwnershipMismatchException;
 import com.memoring.memoring_server.domain.mission.exception.MissionNotFoundException;
 import com.memoring.memoring_server.domain.diary.exception.DiaryImageMissingException;
+import com.memoring.memoring_server.domain.user.UserService;
 import com.memoring.memoring_server.global.external.openai.stt.SttService;
 import com.memoring.memoring_server.global.external.openai.stt.dto.SttTranscriptionResponse;
 import com.memoring.memoring_server.global.storage.StorageService;
@@ -37,6 +39,8 @@ public class DiaryService {
     private final MissionService missionService;
     private final StorageService storageService;
     private final SttService sttService;
+    private final CareRelationService careRelationService;
+    private final UserService userService;
 
     @Transactional
     public DiaryCreateResponse createDiary(
@@ -141,16 +145,6 @@ public class DiaryService {
                 .orElseThrow(DiaryNotFoundException::new);
     }
 
-    public List<Diary> getRecentDiaries(Long memoryId, Long userId) {
-        return diaryRepository
-                .findTop3ByMemoryIdAndUserIdOrderByCreatedAtDesc(memoryId, userId);
-    }
-
-    public List<Diary> getDiaries(Long memoryId, Long userId) {
-        return diaryRepository
-                .findAllByMemoryIdAndUserIdOrderByCreatedAtDesc(memoryId, userId);
-    }
-
     public DiaryImage getDiaryImageByDiaryId(Long diaryId) {
         return diaryImageRepository.findByDiaryId(diaryId)
                 .orElseThrow(DiaryImageMissingException::new);
@@ -161,8 +155,16 @@ public class DiaryService {
     }
 
     private void validateDiaryOwnership(Diary diary, String username) {
-        if (!diary.getUser().getUsername().equals(username)) {
-            throw new AccessDeniedException("해당 일기에 대한 권한이 없습니다.");
+        if (diary.getUser().getUsername().equals(username)) {
+            return;
         }
+
+        User requester = userService.getUserByUsername(username);
+        if (requester.isCaregiver()
+                && careRelationService.isConnected(diary.getUser().getId(), requester.getId())) {
+            return;
+        }
+
+        throw new AccessDeniedException("해당 일기에 대한 권한이 없습니다.");
     }
 }
